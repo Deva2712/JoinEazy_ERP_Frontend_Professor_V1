@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Group Assignment System Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { margin: 5px; padding: 10px 15px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .group-info { background: #e7f3ff; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Group Assignment System Test</h1>
+    <p>This test demonstrates the new group assignment functionality with leader permissions and acknowledgment system.</p>
+
+    <div class="test-section info">
+        <h2>📋 Test Overview</h2>
+        <p><strong>New Features:</strong></p>
+        <ul>
+            <li>Group assignments show group name at the top</li>
+            <li>Student-created groups: Only group leader can submit</li>
+            <li>Professor-created groups: Any member can submit</li>
+            <li>Users not in groups cannot submit group assignments</li>
+            <li>Group submission acknowledgment affects all group members</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🔐 1. Authentication</h2>
+        <button onclick="testLogin()">Login as Professor</button>
+        <button onclick="testStudentLogin()">Login as Student</button>
+        <button onclick="checkAuth()">Check Auth Status</button>
+        <div id="authResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>👥 2. Test Group Information</h2>
+        <p>Check what groups exist and their structure:</p>
+        <button onclick="getGroups()">Get Groups</button>
+        <button onclick="getUserGroupInfo()">Get My Group Info</button>
+        <div id="groupResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 3. Create Test Group Assignment</h2>
+        <p>Create a group assignment to test the new functionality:</p>
+        <button onclick="createGroupAssignment()">Create Group Assignment</button>
+        <div id="createResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 4. Test Assignment Retrieval</h2>
+        <p>Get assignments and check group information:</p>
+        <button onclick="getAssignments()">Get Assignments</button>
+        <div id="assignmentResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ 5. Test Group Submission</h2>
+        <p>Test submitting assignments based on group roles:</p>
+        <button onclick="testGroupSubmission()">Test Group Submission</button>
+        <div id="submissionResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 6. Live Frontend Test</h2>
+        <p>Open the frontend to test the UI:</p>
+        <button onclick="openFrontend()">Open Frontend Assignment Page</button>
+        <div class="group-info">
+            <strong>What to look for in the frontend:</strong>
+            <ul>
+                <li>Group assignments should show "Your Group: [Group Name]" at the top</li>
+                <li>Group leader should see "You are the group leader" message</li>
+                <li>Non-leaders should see "Only group leader can submit" message</li>
+                <li>Professor-created groups should show "Any member can submit"</li>
+                <li>Users not in groups should see "You must be in a group to submit"</li>
+                <li>Submission confirmation should mention all group members</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://192.168.31.50:8000/api/v1';
+        
+        // Authentication functions
+        async function testLogin() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'professor@test.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                document.getElementById('authResult').innerHTML = `
+                    <div class="${data.success ? 'success' : 'error'}">
+                        <h4>Professor Login Result:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function testStudentLogin() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'student@test.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                document.getElementById('authResult').innerHTML = `
+                    <div class="${data.success ? 'success' : 'error'}">
+                        <h4>Student Login Result:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/status`, {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                document.getElementById('authResult').innerHTML = `
+                    <div class="${data.isLoggedIn ? 'success' : 'error'}">
+                        <h4>Auth Status:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Group functions
+        async function getGroups() {
+            try {
+                const response = await fetch(`${API_BASE}/cohort/1/members`, {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                const groups = data.groups || [];
+                
+                document.getElementById('groupResult').innerHTML = `
+                    <div class="success">
+                        <h4>Groups in Cohort (${groups.length} total):</h4>
+                        <pre>${JSON.stringify(groups, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('groupResult').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function getUserGroupInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/cohort/1/members`, {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('groupResult').innerHTML = `
+                    <div class="info">
+                        <h4>My Group Information:</h4>
+                        <p><strong>Is in group:</strong> ${data.is_group}</p>
+                        <p><strong>User group:</strong></p>
+                        <pre>${JSON.stringify(data.user_group, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('groupResult').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Assignment functions
+        async function createGroupAssignment() {
+            try {
+                const assignmentData = {
+                    name: "Group Project Assignment",
+                    description: "This is a test group assignment to demonstrate the new group submission system. Only group leaders (or any member in professor-created groups) can submit.",
+                    type: "group",
+                    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+                    submissionLink: "https://forms.google.com/group-test"
+                };
+
+                const response = await fetch(`${API_BASE}/cohort/1/assignments`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(assignmentData)
+                });
+                
+                const data = await response.json();
+                document.getElementById('createResult').innerHTML = `
+                    <div class="${data.success ? 'success' : 'error'}">
+                        <h4>Create Group Assignment Result:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('createResult').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function getAssignments() {
+            try {
+                const response = await fetch(`${API_BASE}/cohort/1/assignments`, {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                const assignments = data.data?.assignments || [];
+                
+                // Find group assignments and highlight the new features
+                const groupAssignments = assignments.filter(a => a.type === 'group');
+                
+                document.getElementById('assignmentResult').innerHTML = `
+                    <div class="success">
+                        <h4>Assignments Retrieved (${assignments.length} total, ${groupAssignments.length} group):</h4>
+                        <div class="group-info">
+                            <strong>🎯 Group Assignment Features to Note:</strong>
+                            ${groupAssignments.map(assignment => `
+                                <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 3px;">
+                                    <h5>${assignment.name}</h5>
+                                    <p><strong>Can Submit:</strong> ${assignment.canSubmit !== false ? '✅ Yes' : '❌ No'}</p>
+                                    <p><strong>Submission Message:</strong> ${assignment.submissionMessage || 'N/A'}</p>
+                                    <p><strong>Group Info:</strong> ${assignment.groupInfo ? JSON.stringify(assignment.groupInfo) : 'None'}</p>
+                                    <p><strong>Submitted:</strong> ${assignment.isSubmitted ? '✅ Yes' : '❌ No'}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <details>
+                            <summary>Full API Response</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('assignmentResult').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function testGroupSubmission() {
+            try {
+                // First get assignments to find a group assignment
+                const assignmentsResponse = await fetch(`${API_BASE}/cohort/1/assignments`, {
+                    credentials: 'include'
+                });
+                
+                const assignmentsData = await assignmentsResponse.json();
+                const assignments = assignmentsData.data?.assignments || [];
+                const groupAssignment = assignments.find(a => a.type === 'group');
+                
+                if (!groupAssignment) {
+                    document.getElementById('submissionResult').innerHTML = `
+                        <div class="error">No group assignment found. Create one first!</div>
+                    `;
+                    return;
+                }
+
+                // Try to submit the group assignment
+                const response = await fetch(`${API_BASE}/cohort/1/assignments/${groupAssignment.id}/submit`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                document.getElementById('submissionResult').innerHTML = `
+                    <div class="${data.success ? 'success' : 'error'}">
+                        <h4>Group Submission Test Result:</h4>
+                        <p><strong>Assignment:</strong> ${groupAssignment.name}</p>
+                        <p><strong>Can Submit:</strong> ${groupAssignment.canSubmit !== false ? '✅ Yes' : '❌ No'}</p>
+                        <p><strong>Message:</strong> ${groupAssignment.submissionMessage || 'N/A'}</p>
+                        <h5>Submission Response:</h5>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('submissionResult').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        function openFrontend() {
+            window.open('http://192.168.31.50:3000/c/1/assignments', '_blank');
+        }
+
+        // Auto-check auth on page load
+        setTimeout(checkAuth, 1000);
+    </script>
+</body>
+</html>

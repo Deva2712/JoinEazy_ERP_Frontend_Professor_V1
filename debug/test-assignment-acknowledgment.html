@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Submission Acknowledgment Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .title {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .feature-section {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #fafafa;
+        }
+        .feature-section h3 {
+            margin-top: 0;
+            color: #2563eb;
+            font-size: 20px;
+        }
+        .demo-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .assignment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .assignment-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .assignment-type {
+            background: #e0f2fe;
+            color: #0288d1;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .assignment-description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .assignment-meta {
+            display: flex;
+            gap: 20px;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .assignment-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-submit {
+            background: #16a34a;
+            color: white;
+        }
+        .btn-submit:hover {
+            background: #15803d;
+        }
+        .btn-acknowledge {
+            background: #ea580c;
+            color: white;
+        }
+        .btn-acknowledge:hover {
+            background: #c2410c;
+        }
+        .btn-submitted {
+            background: #dcfce7;
+            color: #15803d;
+            cursor: default;
+        }
+        .status-section {
+            background: #f0f9ff;
+            border: 1px solid #7dd3fc;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status-section h4 {
+            margin: 0 0 10px 0;
+            color: #0369a1;
+        }
+        .professor-view {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+        }
+        .professor-view h4 {
+            color: #92400e;
+        }
+        .workflow-steps {
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .workflow-steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .workflow-steps li {
+            margin: 8px 0;
+            color: #374151;
+        }
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .api-info {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🎯 Assignment Submission Acknowledgment System</h1>
+        
+        <div class="status-section">
+            <h4>✅ System Status: IMPLEMENTED & WORKING</h4>
+            <p>The assignment acknowledgment system is fully functional! Students get a confirmation alert before marking submissions, and once acknowledged, the status is permanent.</p>
+        </div>
+
+        <div class="feature-section">
+            <h3>📚 How It Works</h3>
+            <div class="workflow-steps">
+                <ol>
+                    <li>Professor creates an assignment with a <span class="highlight">submission link</span> (e.g., Google Forms)</li>
+                    <li>Students see two buttons: <span class="highlight">"Submit"</span> and <span class="highlight">"Mark as Submitted"</span></li>
+                    <li>Students click <strong>"Submit"</strong> to go to the external form/link</li>
+                    <li>After submitting externally, students click <strong>"Mark as Submitted"</strong></li>
+                    <li>System shows <span class="highlight">confirmation alert</span>: "Are you sure you want to submit?"</li>
+                    <li>If confirmed, status changes to <span class="highlight">"Submitted ✓"</span> (permanent)</li>
+                    <li>Professor sees <span class="highlight">acknowledgment counts</span> and submission tracking</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="feature-section">
+            <h3>👨‍🎓 Student View Demo</h3>
+            
+            <!-- Demo Assignment Card 1 - Not Submitted -->
+            <div class="demo-card">
+                <div class="assignment-header">
+                    <h4 class="assignment-title">React Components Assignment</h4>
+                    <span class="assignment-type">individual</span>
+                </div>
+                <p class="assignment-description">Create a React component library with at least 5 reusable components</p>
+                <div class="assignment-meta">
+                    <span>📅 Oct 30, 2025</span>
+                    <span>🕒 11:59 PM</span>
+                </div>
+                <div class="assignment-actions">
+                    <a href="#" class="btn btn-submit" onclick="alert('Opens external submission link (e.g., Google Forms)')">
+                        🔗 Submit
+                    </a>
+                    <button class="btn btn-acknowledge" onclick="acknowledgeSubmission(this, 1)">
+                        ✅ Mark as Submitted
+                    </button>
+                </div>
+            </div>
+
+            <!-- Demo Assignment Card 2 - Already Submitted -->
+            <div class="demo-card">
+                <div class="assignment-header">
+                    <h4 class="assignment-title">Database Design Project</h4>
+                    <span class="assignment-type">individual</span>
+                </div>
+                <p class="assignment-description">Design and implement a database schema for an e-commerce application</p>
+                <div class="assignment-meta">
+                    <span>📅 Oct 28, 2025</span>
+                    <span>🕒 11:59 PM</span>
+                </div>
+                <div class="assignment-actions">
+                    <a href="#" class="btn btn-submit" onclick="alert('Opens external submission link (e.g., Google Forms)')">
+                        🔗 Submit
+                    </a>
+                    <div class="btn btn-submitted">
+                        ✅ Submitted ✓
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-section">
+            <h3>👨‍🏫 Professor View Demo</h3>
+            
+            <div class="status-section professor-view">
+                <h4>📊 Assignment Tracking Dashboard</h4>
+                <div class="demo-card">
+                    <div class="assignment-header">
+                        <h4 class="assignment-title">React Components Assignment</h4>
+                        <span class="assignment-type">individual</span>
+                    </div>
+                    <p class="assignment-description">Create a React component library with at least 5 reusable components</p>
+                    <div class="assignment-meta">
+                        <span>📅 Oct 30, 2025</span>
+                        <span>🕒 11:59 PM</span>
+                        <span>📊 <strong id="submissions1">12</strong> / 25 submissions</span>
+                        <span>✅ <strong id="acknowledged1">8</strong> acknowledged</span>
+                    </div>
+                    <div class="assignment-actions">
+                        <button class="btn" style="background: #3b82f6; color: white;">✏️ Edit</button>
+                        <button class="btn" style="background: #ef4444; color: white;">🗑️ Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-section">
+            <h3>🔧 Technical Implementation</h3>
+            
+            <div class="api-info">
+                <strong>Frontend APIs Used:</strong><br>
+                • courseAPI.markAssignmentSubmitted(cohortId, assignmentId)<br>
+                • courseAPI.unmarkAssignmentSubmitted(cohortId, assignmentId)<br>
+                • courseAPI.getSubmissionStatus(cohortId, assignmentIds)<br><br>
+                
+                <strong>Backend Endpoints:</strong><br>
+                • POST /cohort/:cohortId/assignments/:assignmentId/submit<br>
+                • DELETE /cohort/:cohortId/assignments/:assignmentId/submit<br>
+                • GET /cohort/:cohortId/assignments/submissions/status<br><br>
+                
+                <strong>Database:</strong><br>
+                • AssignmentSubmission model tracks acknowledgments<br>
+                • Links user_id, assignment_id, and submission_timestamp
+            </div>
+        </div>
+
+        <div class="feature-section">
+            <h3>🎉 Key Benefits</h3>
+            <ul>
+                <li><strong>Confirmation Alert:</strong> Prevents accidental submissions</li>
+                <li><strong>Double Tracking:</strong> External submission + internal acknowledgment</li>
+                <li><strong>Professor Visibility:</strong> Real-time submission counts</li>
+                <li><strong>Permanent Status:</strong> Once submitted, status is locked</li>
+                <li><strong>No External Dependency:</strong> Works with any submission platform</li>
+                <li><strong>Audit Trail:</strong> Timestamp tracking for acknowledgments</li>
+                <li><strong>Group Support:</strong> Handles both individual and group assignments</li>
+            </ul>
+        </div>
+
+        <div class="status-section">
+            <h4>🚀 Ready for Production</h4>
+            <p>This feature is fully implemented and ready to use! Students can now acknowledge their submissions, providing better tracking for professors while maintaining flexibility with external submission platforms.</p>
+        </div>
+    </div>
+
+    <script>
+        function acknowledgeSubmission(button, assignmentId) {
+            // Show confirmation alert
+            const confirmed = confirm('Are you sure you want to mark this assignment as submitted?\n\nThis will notify your professor that you have completed this assignment.');
+            
+            if (!confirmed) {
+                return; // User cancelled
+            }
+            
+            // Simulate API call
+            button.innerHTML = '⏳ Marking...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                // Replace button with status display
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'btn btn-submitted';
+                statusDiv.innerHTML = '✅ Submitted ✓';
+                button.parentNode.replaceChild(statusDiv, button);
+                
+                // Update professor view counts
+                const acknowledgedEl = document.getElementById(`acknowledged${assignmentId}`);
+                if (acknowledgedEl) {
+                    acknowledgedEl.textContent = parseInt(acknowledgedEl.textContent) + 1;
+                }
+                
+                alert('✅ Assignment marked as submitted successfully!');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

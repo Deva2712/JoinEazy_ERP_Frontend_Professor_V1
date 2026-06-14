@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Deadline Time Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-case { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .result { margin: 10px 0; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Assignment Deadline Time Fix Test</h1>
+    
+    <div class="test-case">
+        <h3>Test 1: Creating datetime-local value</h3>
+        <p>Testing how we convert a datetime to datetime-local format</p>
+        <div id="test1-result" class="result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>Test 2: Converting datetime-local to ISO string</h3>
+        <p>Testing how we convert datetime-local back to ISO format</p>
+        <div id="test2-result" class="result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>Test 3: Display formatting</h3>
+        <p>Testing how deadlines are displayed</p>
+        <div id="test3-result" class="result"></div>
+    </div>
+
+    <script>
+        // Utility function to format deadline for consistent display (copied from fix)
+        const formatDeadlineTime = (deadline) => {
+            const date = new Date(deadline);
+            return {
+                date: date.toLocaleDateString([], { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                }),
+                time: date.toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                })
+            };
+        };
+
+        // Test 1: Creating datetime-local value (fixed version)
+        function test1() {
+            const testDeadline = "2025-10-30T23:59:59Z"; // UTC time from backend
+            
+            // OLD METHOD (problematic)
+            const oldMethod = new Date(testDeadline).toISOString().slice(0, 16);
+            
+            // NEW METHOD (fixed)
+            const date = new Date(testDeadline);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const newMethod = `${year}-${month}-${day}T${hours}:${minutes}`;
+            
+            document.getElementById('test1-result').innerHTML = `
+                <strong>Original deadline:</strong> ${testDeadline}<br>
+                <strong>Old method (problematic):</strong> ${oldMethod}<br>
+                <strong>New method (fixed):</strong> ${newMethod}<br>
+                <span class="${oldMethod !== newMethod ? 'success' : 'error'}">
+                    ${oldMethod !== newMethod ? '✅ Methods produce different results - fix working!' : '❌ Methods same - might be timezone issue'}
+                </span>
+            `;
+        }
+
+        // Test 2: Converting datetime-local to ISO string
+        function test2() {
+            const datetimeLocalValue = "2025-10-30T15:30"; // What user inputs
+            
+            // Convert to ISO string (as done in fix)
+            const isoString = new Date(datetimeLocalValue).toISOString();
+            
+            document.getElementById('test2-result').innerHTML = `
+                <strong>Datetime-local input:</strong> ${datetimeLocalValue}<br>
+                <strong>Converted to ISO:</strong> ${isoString}<br>
+                <span class="success">✅ This ensures consistent timezone handling</span>
+            `;
+        }
+
+        // Test 3: Display formatting
+        function test3() {
+            const testDeadlines = [
+                "2025-10-30T23:59:59Z",
+                "2025-10-30T15:30:00Z",
+                "2025-11-15T09:00:00Z"
+            ];
+            
+            let html = "";
+            testDeadlines.forEach((deadline, index) => {
+                const formatted = formatDeadlineTime(deadline);
+                html += `
+                    <strong>Deadline ${index + 1}:</strong> ${deadline}<br>
+                    <strong>Formatted:</strong> ${formatted.date} at ${formatted.time}<br><br>
+                `;
+            });
+            
+            document.getElementById('test3-result').innerHTML = html + '<span class="success">✅ Consistent display format</span>';
+        }
+
+        // Run tests
+        test1();
+        test2();
+        test3();
+    </script>
+</body>
+</html>

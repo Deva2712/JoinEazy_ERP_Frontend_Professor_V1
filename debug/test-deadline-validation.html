@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Deadline Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, button {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="datetime-local"] {
+            width: 250px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+            padding: 10px 20px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #155724;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            color: #0c5460;
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🕒 Assignment Deadline Validation Test</h1>
+    <p>This page tests the deadline validation functionality to ensure assignments cannot be created with deadlines in the past.</p>
+    
+    <div class="info">
+        <strong>Current Date/Time:</strong> <span id="currentDateTime"></span>
+    </div>
+
+    <div class="test-section">
+        <h3>✅ Test 1: Valid Future Deadline</h3>
+        <p>Test setting a deadline in the future (should work)</p>
+        
+        <div class="form-group">
+            <label for="validDeadline">Select Future Deadline:</label>
+            <input type="datetime-local" id="validDeadline" name="validDeadline">
+        </div>
+        
+        <button onclick="testValidDeadline()">Test Valid Deadline</button>
+        <div id="validResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>❌ Test 2: Invalid Past Deadline</h3>
+        <p>Test setting a deadline in the past (should fail)</p>
+        
+        <div class="form-group">
+            <label for="pastDeadline">Select Past Deadline:</label>
+            <input type="datetime-local" id="pastDeadline" name="pastDeadline">
+        </div>
+        
+        <button onclick="testPastDeadline()">Test Past Deadline</button>
+        <div id="pastResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>⚡ Test 3: Edge Case - Current Time</h3>
+        <p>Test setting a deadline exactly at current time (should fail)</p>
+        
+        <div class="form-group">
+            <label for="currentDeadline">Current Time Deadline:</label>
+            <input type="datetime-local" id="currentDeadline" name="currentDeadline" readonly>
+        </div>
+        
+        <button onclick="testCurrentTimeDeadline()">Test Current Time</button>
+        <div id="currentResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 JavaScript Validation Functions</h3>
+        <p>These are the same functions implemented in the React component:</p>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 14px;">
+            <strong>getCurrentDateTimeLocal():</strong> Gets current date/time in datetime-local format<br>
+            <strong>isDeadlineInFuture():</strong> Validates if selected deadline is in the future
+        </div>
+    </div>
+
+    <script>
+        // Utility function to get current datetime in datetime-local format
+        function getCurrentDateTimeLocal() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        // Utility function to validate if deadline is in the future
+        function isDeadlineInFuture(deadlineValue) {
+            if (!deadlineValue) return false;
+            const deadlineDate = new Date(deadlineValue);
+            const currentDate = new Date();
+            return deadlineDate > currentDate;
+        }
+
+        // Initialize page
+        function initializePage() {
+            const currentDateTime = getCurrentDateTimeLocal();
+            document.getElementById('currentDateTime').textContent = new Date().toLocaleString();
+            
+            // Set min attribute for future deadline input
+            document.getElementById('validDeadline').min = currentDateTime;
+            
+            // Set a past deadline example
+            const pastDate = new Date();
+            pastDate.setHours(pastDate.getHours() - 2);
+            const pastYear = pastDate.getFullYear();
+            const pastMonth = String(pastDate.getMonth() + 1).padStart(2, '0');
+            const pastDay = String(pastDate.getDate()).padStart(2, '0');
+            const pastHours = String(pastDate.getHours()).padStart(2, '0');
+            const pastMinutes = String(pastDate.getMinutes()).padStart(2, '0');
+            document.getElementById('pastDeadline').value = `${pastYear}-${pastMonth}-${pastDay}T${pastHours}:${pastMinutes}`;
+            
+            // Set current time for edge case test
+            document.getElementById('currentDeadline').value = currentDateTime;
+            
+            // Set a default future deadline
+            const futureDate = new Date();
+            futureDate.setDate(futureDate.getDate() + 1);
+            const futureYear = futureDate.getFullYear();
+            const futureMonth = String(futureDate.getMonth() + 1).padStart(2, '0');
+            const futureDay = String(futureDate.getDate()).padStart(2, '0');
+            const futureHours = String(futureDate.getHours()).padStart(2, '0');
+            const futureMinutes = String(futureDate.getMinutes()).padStart(2, '0');
+            document.getElementById('validDeadline').value = `${futureYear}-${futureMonth}-${futureDay}T${futureHours}:${futureMinutes}`;
+        }
+
+        // Test valid future deadline
+        function testValidDeadline() {
+            const deadline = document.getElementById('validDeadline').value;
+            const resultDiv = document.getElementById('validResult');
+            
+            if (!deadline) {
+                resultDiv.innerHTML = '<div class="error">Please select a deadline</div>';
+                return;
+            }
+            
+            if (isDeadlineInFuture(deadline)) {
+                resultDiv.innerHTML = '<div class="success">✅ SUCCESS: Deadline is valid (in the future)</div>';
+            } else {
+                resultDiv.innerHTML = '<div class="error">❌ FAILED: Deadline must be set to a future date and time</div>';
+            }
+        }
+
+        // Test past deadline
+        function testPastDeadline() {
+            const deadline = document.getElementById('pastDeadline').value;
+            const resultDiv = document.getElementById('pastResult');
+            
+            if (!deadline) {
+                resultDiv.innerHTML = '<div class="error">Please select a deadline</div>';
+                return;
+            }
+            
+            if (isDeadlineInFuture(deadline)) {
+                resultDiv.innerHTML = '<div class="success">✅ UNEXPECTED: This deadline is actually in the future</div>';
+            } else {
+                resultDiv.innerHTML = '<div class="error">❌ EXPECTED FAILURE: Deadline must be set to a future date and time</div>';
+            }
+        }
+
+        // Test current time deadline
+        function testCurrentTimeDeadline() {
+            const deadline = document.getElementById('currentDeadline').value;
+            const resultDiv = document.getElementById('currentResult');
+            
+            if (isDeadlineInFuture(deadline)) {
+                resultDiv.innerHTML = '<div class="success">✅ UNEXPECTED: Current time is considered future (timing difference)</div>';
+            } else {
+                resultDiv.innerHTML = '<div class="error">❌ EXPECTED FAILURE: Deadline must be set to a future date and time</div>';
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializePage);
+        
+        // Update current time every second
+        setInterval(() => {
+            document.getElementById('currentDateTime').textContent = new Date().toLocaleString();
+        }, 1000);
+    </script>
+</body>
+</html>

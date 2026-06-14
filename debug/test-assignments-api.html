@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Assignments API</title>
+</head>
+<body>
+    <h1>Assignment API Test</h1>
+    
+    <div>
+        <h2>1. Login First</h2>
+        <button onclick="testLogin()">Login as Professor</button>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div>
+        <h2>2. Check Auth Status</h2>
+        <button onclick="checkAuth()">Check Authentication</button>
+        <div id="authResult"></div>
+    </div>
+    
+    <div>
+        <h2>3. Test Assignments</h2>
+        <button onclick="testGetAssignments()">Get Assignments</button>
+        <div id="assignmentsResult"></div>
+    </div>
+    
+    <div>
+        <h2>4. Create Test Assignment</h2>
+        <button onclick="testCreateAssignment()">Create Assignment</button>
+        <div id="createResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://192.168.31.50:8000/api/v1';
+        
+        async function testLogin() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'professor@mahindrauniversity.edu.in',
+                        password: 'Test@456'
+                    }),
+                });
+                
+                const data = await response.json();
+                document.getElementById('loginResult').innerHTML = `
+                    <p>Status: ${response.status}</p>
+                    <p>Response: ${JSON.stringify(data, null, 2)}</p>
+                `;
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/status`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const data = await response.json();
+                document.getElementById('authResult').innerHTML = `
+                    <p>Status: ${response.status}</p>
+                    <p>Response: ${JSON.stringify(data, null, 2)}</p>
+                `;
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testGetAssignments() {
+            try {
+                const response = await fetch(`${API_BASE}/cohort/1/assignments`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const data = await response.json();
+                document.getElementById('assignmentsResult').innerHTML = `
+                    <p>Status: ${response.status}</p>
+                    <p>Response: <pre>${JSON.stringify(data, null, 2)}</pre></p>
+                `;
+            } catch (error) {
+                document.getElementById('assignmentsResult').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testCreateAssignment() {
+            try {
+                const assignmentData = {
+                    name: "Test Assignment from HTML",
+                    description: "This is a test assignment created from the HTML test page",
+                    type: "individual",
+                    deadline: "2025-12-31T23:59:59Z",
+                    submissionLink: "https://example.com/submit-test"
+                };
+                
+                const response = await fetch(`${API_BASE}/cohort/1/assignments`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(assignmentData),
+                });
+                
+                const data = await response.json();
+                document.getElementById('createResult').innerHTML = `
+                    <p>Status: ${response.status}</p>
+                    <p>Response: <pre>${JSON.stringify(data, null, 2)}</pre></p>
+                `;
+            } catch (error) {
+                document.getElementById('createResult').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
