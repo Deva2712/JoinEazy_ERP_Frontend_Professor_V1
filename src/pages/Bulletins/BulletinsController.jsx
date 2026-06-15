@@ -48,11 +48,13 @@ const BulletinsController = () => {
 
 		return {
 			todayCount: bulletins.filter((b) => {
-				const d = safeDate(b);
-				if (!d) return false;
-				const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-				return dStr === todayStr;
-			}).length,
+    const date = new Date(b.createdAt || b.created_at || b.date);
+    return (
+        date.getFullYear() === now.getFullYear() &&
+        date.getMonth()    === now.getMonth()    &&
+        date.getDate()     === now.getDate()
+    );
+}).length,
 			priorityThisWeek: bulletins.filter((b) => {
 				const d = safeDate(b);
 				if (!d) return false;

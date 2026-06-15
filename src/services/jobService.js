@@ -1,14 +1,11 @@
-// src/services/jobService.js
-
-import { jobTrayAPI } from "./api.js";
-
+import { studentJobTrayService as jobTrayService } from "@/api/services/studentJobTray.service";
 export const jobService = {
     async getAllPendingJobs() {
         try {
-            const response = await jobTrayAPI.getPendingJobs();
+            const response = await jobTrayService.getPendingJobs();
             return response.success ? response.data : [];
         } catch (error) {
-            console.error("Error fetching jobs from server:", error);
+            console.error("Error fetching jobs:", error);
             return [];
         }
     },
