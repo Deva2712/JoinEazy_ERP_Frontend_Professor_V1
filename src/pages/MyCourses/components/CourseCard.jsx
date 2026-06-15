@@ -1,7 +1,7 @@
 // src/pages/MyCourses/components/CourseCard.jsx
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
 	ArrowRight,
 	Calendar,
@@ -27,12 +27,12 @@ const formatDate = (dateString) => {
 };
 
 export default function CourseCard({ cohort, user_type }) {
+	const navigate = useNavigate();
 	const isStudent = user_type === 0;
 	const isArchived = cohort.status === "Archived";
 	const pendingAssignments =
 		cohort.assignment_count - cohort.completed_assignment_count;
 
-	// Metrics section for students
 	const StudentAssignmentMetrics = (
 		<>
 			<div className="flex flex-col items-start justify-center pr-4 border-r border-gray-200 dark:border-gray-800 transition-colors group-hover:border-blue-200 dark:group-hover:border-gray-700">
@@ -56,7 +56,6 @@ export default function CourseCard({ cohort, user_type }) {
 		</>
 	);
 
-	// Metrics section for professors
 	const ProfessorAssignmentMetrics = (
 		<>
 			<div className="flex flex-col items-start justify-center pr-4 border-r border-gray-200 dark:border-gray-800 transition-colors group-hover:border-blue-200 dark:group-hover:border-gray-700">
@@ -81,8 +80,9 @@ export default function CourseCard({ cohort, user_type }) {
 	);
 
 	return (
-		<Link
-			to={cohort.link}
+		// FIX: outer Link → div with onClick to avoid nested <a> tags
+		<div
+			onClick={() => navigate(cohort.link)}
 			className={`group bg-white dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-200/60 dark:border-gray-800 flex flex-col h-full hover:border-blue-500/30 dark:hover:border-blue-500/30 hover:shadow-2xl hover:shadow-gray-500/5 hover:-translate-y-1 transition-all duration-300 cursor-pointer ring-1 ring-transparent hover:ring-blue-500/10 ${
 				isArchived ? "grayscale-[100%] hover:grayscale-0" : ""
 			}`}
@@ -101,7 +101,6 @@ export default function CourseCard({ cohort, user_type }) {
 							{formatDate(cohort.endDate)}
 						</div>
 
-						{/* Course Code Indicator */}
 						{cohort.courseCodes?.length > 0 && (
 							<div className="flex items-center gap-1">
 								<span className="px-3 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider border border-blue-100 dark:border-blue-800">
@@ -144,6 +143,6 @@ export default function CourseCard({ cohort, user_type }) {
 					</Link>
 				</div>
 			</div>
-		</Link>
+		</div>
 	);
 }

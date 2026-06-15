@@ -626,6 +626,25 @@ function _handleResources(endpoint, options) {
 		return { success: true, data: { message: "Resource deleted successfully" } };
 	}
 
+	// GET discussions — frontend expects an array
+	if (endpoint.match(/^\/cohort\/[^/]+\/discussions$/) && (!options.method || options.method === "GET")) {
+		return { success: true, data: [] };
+	}
+
+	// POST new discussion
+	if (endpoint.match(/^\/cohort\/[^/]+\/discussions$/) && options.method === "POST") {
+		const body = JSON.parse(options.body || "{}");
+		return {
+			success: true,
+			data: {
+				id: Date.now(),
+				...body,
+				createdAt: new Date().toISOString(),
+				replies: [],
+			},
+		};
+	}
+
 	return null;
 }
 

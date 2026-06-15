@@ -151,7 +151,7 @@ export default function AnnouncementsProfessorUI({
         )}
 
         {/* Discussions */}
-        {discussions.map((discussion) => (
+        {(Array.isArray(discussions) ? discussions : []).map((discussion) => (
           <DiscussionCard
             key={discussion.id}
             discussion={discussion}
