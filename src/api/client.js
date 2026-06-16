@@ -59,8 +59,11 @@ const REAL_ENDPOINTS = [
 	/^\/cohort\/[^/]+\/members/,
 	/^\/cohort\/[^/]+\/notes/,
 	/^\/cohort\/[^/]+\/resources/,
-	// /^\/cohort\/[^/]+\/courses/,
+	/^\/cohort\/[^/]+\/courses/,
 	/^\/cohort\/[^/]+\/student\/meeting/,
+      /^\/cohort\/[^/]+\/materials/,
+     /^\/cohort\/[^/]+\/discussions/,
+
 
 	// Attendance
 	/^\/attendance\/logs\//,
@@ -100,7 +103,7 @@ const REAL_ENDPOINTS = [
 	/^\/payroll\//,
 
 	/^\/sessions\//,
-    
+    /^\/calendar\//,
 
 	// Professor schedule & meetings
 	/^\/professor\//,
@@ -114,6 +117,9 @@ const REAL_ENDPOINTS = [
   /^\/job-tray$/,             
   /^\/student\/job-tray$/,    
   /^\/student\/notifications$/, 
+   
+
+  /^\/revaluation\//,
 
 
 ];
