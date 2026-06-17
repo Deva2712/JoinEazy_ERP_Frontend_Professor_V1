@@ -49,6 +49,7 @@ const REAL_ENDPOINTS = [
 	// Cohort core
 	/^\/cohort\/archived/,
 	/^\/cohort\/[^/]+\/details/,
+	/^\/cohort\/create/,
 
 	// Cohort sub-modules
 	/^\/cohort\/[^/]+\/announcements/,

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import CreateCohortUI from "./CreateCohortUI";
-import { courseAPI } from "../../../services/api";
+import {courseService} from "../../../api/services/course.service";
 
 const createCourseSchema = z.object({
   name: z.string().min(1, "Name cannot be empty"),
@@ -122,7 +122,7 @@ const CreateCourseController = ({
       console.log("Creating course with data:", courseData);
 
       // Call the API to create the course
-      const response = await courseAPI.createCourse(courseData);
+      const response = await courseService.createCourse(courseData);
       
       console.log("Course creation response:", response);
       
