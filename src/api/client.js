@@ -122,6 +122,8 @@ const REAL_ENDPOINTS = [
 
   /^\/revaluation\//,
 
+ /^\/student\/job-tray$/,
+/^\/job-tray$/,
 
 ];
 
