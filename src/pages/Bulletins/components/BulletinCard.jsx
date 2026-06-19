@@ -30,7 +30,7 @@ const BulletinCard = ({ bullet }) => {
 	};
 
 	const formattedDate = new Date(
-		bullet.createdAt || bullet.date,
+	  bullet.createdAt || bullet.created_at || bullet.date,
 	).toLocaleDateString("en-US", {
 		month: "short",
 		day: "numeric",
