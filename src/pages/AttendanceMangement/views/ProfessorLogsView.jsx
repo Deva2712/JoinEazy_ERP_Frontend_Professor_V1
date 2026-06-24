@@ -113,7 +113,7 @@ const ProfessorLogsView = ({
 				/>
 
 				<button
-					onClick={() => navigate("/leave-application")}
+					onClick={() => navigate("/leave-applications")}
 					className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl transition-all group"
 				>
 					<div className="flex items-center gap-3">

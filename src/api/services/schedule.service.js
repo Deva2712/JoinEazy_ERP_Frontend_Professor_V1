@@ -40,5 +40,11 @@ export const scheduleService = {
             method: "POST",
             body: JSON.stringify({ newDateTime }),
         }),
-};
 
+    // Create a new outgoing meeting request (e.g. professor requesting a meeting with another professor)
+    createOutgoingRequest: (requestData) =>
+        apiCall("/professor/meetings/outgoing", {
+            method: "POST",
+            body: JSON.stringify(requestData),
+        }),
+};

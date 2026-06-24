@@ -5,7 +5,7 @@ import RichTextArea from "@/components/RichTextArea";
 const ContainerCard = ({
   container,
   user_type,
-  editingContainer,
+  isEditing,
   editForm,
   setEditForm,
   saveError,
@@ -17,7 +17,7 @@ const ContainerCard = ({
   handleDeleteSection,
   containerRefs,
 }) => {
-  const isEditing = editingContainer === container.id;
+
 
   if (isEditing) {
     return (
@@ -46,11 +46,11 @@ const ContainerCard = ({
             value={editForm.content}
             onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
             placeholder={
-              editingContainer === 1
+              container.id === 1
                 ? "Welcome to this course! This is where you can provide an overview of what students will learn and what to expect from this course."
-                : editingContainer === 2
+                : container.id === 2
                 ? "Provide a detailed description of the course content, learning objectives, and what students will gain from taking this course."
-                : editingContainer === 3
+                : container.id === 3
                 ? "List important resources, materials, tools, or references that students will need for this course."
                 : "Enter your content here..."
             }
@@ -74,7 +74,7 @@ const ContainerCard = ({
           </button>
           {user_type === 1 && (
             <button
-              onClick={() => handleDeleteSection(editingContainer)}
+              onClick={() => handleDeleteSection(container.id)}
               className="px-4 py-1.5 text-white text-sm bg-red-600 rounded-lg hover:bg-red-700 transition-colors font-medium"
             >
               Delete

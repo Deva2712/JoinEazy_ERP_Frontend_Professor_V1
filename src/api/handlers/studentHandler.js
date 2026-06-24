@@ -4,7 +4,10 @@
 //         /student/profile, /student/courses/*, /hostel/*, /mentor/*,
 //         /finance/*, /registrar/*
 
-import * as Mocks from "../mock";
+import * as _MocksReadonly from "../mock";
+
+// Mutable wrapper — allows us to reassign values without violating ES module immutability
+const Mocks = Object.assign({}, _MocksReadonly);
 
 export function handleStudent(endpoint, options = {}) {
 	// ── Timetable ────────────────────────────────────────────────────────────
@@ -633,15 +636,12 @@ function _handleRegistrar(endpoint, options) {
 				urgency: body.urgency || "Normal (5–7 working days)",
 				deadline: body.deadline || null,
 				supportingDocFileName: body.supportingDocFileName || null,
-				teacherName: body.teacherName || null,
 				status: "Pending",
 				requestedAt: new Date().toISOString(),
 				professorRemarks: null,
 				lorFileUrl: null,
 			};
 			Mocks._lorRequests.unshift(lorEntry);
-			// Store lorId back in docRequest for two-way sync
-			newRequest.lorId = lorEntry.id;
 		}
 
 		return { success: true, data: newRequest };
@@ -680,28 +680,9 @@ function _handleRegistrar(endpoint, options) {
 // ── LoR handler (professor-side) ──────────────────────────────────────────────
 function _handleLor(endpoint, options = {}) {
 	const method = options.method || "GET";
-	const role = typeof localStorage !== "undefined" ? localStorage.getItem("userRole") : "professor";
 
-	// GET /lor/requests
-	// Professor → full inbox (_lorRequests)
-	// Student   → their submitted LoR requests from _registrarDocRequests, enriched with lorStatus
+	// GET /lor/requests — fetch all LoR requests for this professor
 	if (endpoint === "/lor/requests" && method === "GET") {
-		if (role === "student") {
-			const studentLors = Mocks._registrarDocRequests
-				.filter(r => r.type === "Letter of Recommendation")
-				.map(r => {
-					// Find matching lorRequest for professor's response
-					const lorReq = Mocks._lorRequests.find(l => l.id === r.lorId || l.purpose === r.purpose);
-					return {
-						...r,
-						lorStatus: lorReq?.status || r.status,
-						professorRemarks: lorReq?.professorRemarks || null,
-						lorFileUrl: lorReq?.lorFileUrl || null,
-					};
-				});
-			return { success: true, data: studentLors };
-		}
-		// Professor gets full list
 		return { success: true, data: Mocks._lorRequests };
 	}
 
@@ -715,15 +696,6 @@ function _handleLor(endpoint, options = {}) {
 		if (method === "PATCH") {
 			const body = JSON.parse(options.body || "{}");
 			Object.assign(req, body, { updatedAt: new Date().toISOString() });
-
-			// Sync status back to registrar doc requests so student sees update
-			const docReq = Mocks._registrarDocRequests.find(r => r.lorId === id || r.purpose === req.purpose);
-			if (docReq && body.status) {
-				docReq.lorStatus = body.status;
-				if (body.status === "Submitted") docReq.status = "Completed";
-				if (body.lorFileUrl) docReq.lorFileUrl = body.lorFileUrl;
-			}
-
 			return { success: true, data: req };
 		}
 	}

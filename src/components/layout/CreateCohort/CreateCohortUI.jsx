@@ -42,9 +42,8 @@ const CreateCohortUI = ({
         setCreationError(errorMessage);
       } else {
         // Success - close modal and navigate to dashboard
-        console.log("Course created successfully, closing modal and navigating...");
-        onClose();
-        // The onClose function will handle navigation properly
+        // Success — controller already navigated to /my-courses
+        console.log("Course created successfully, navigation handled by controller");
       }
     } catch (error) {
       console.error("Error in form submission:", error);
@@ -61,7 +60,7 @@ const CreateCohortUI = ({
     >
       <div className="bg-white md:rounded-2xl rounded-b-none shadow-lg w-full max-w-[35rem] lg:mx-4 mx-0 relative h-[100vh] md:h-auto md:max-h-[80vh] flex flex-col">
         {/* Header with close button */}
-        <div className="flex items-center justify-between p-5 md:p-5 p-4 border-b border-gray-200 flex-shrink-0">
+        <div className="flex items-center justify-between p-5 md:p-5 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-xl font-semibold text-gray-900">New Course</h2>
           <button
             onClick={onClose}

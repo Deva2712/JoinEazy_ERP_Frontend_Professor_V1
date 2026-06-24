@@ -74,7 +74,7 @@ export const announcementsService = {
 				}, 300);
 			});
 		}
-		return apiCall(`/cohort/${cohortId}/announcements`);
+		return apiCall(`/cohort/${cohortId}/announcements?archived=true`); // fetch all, frontend filters by is_archived
 	},
 
 	// Create new announcement (Professor only)

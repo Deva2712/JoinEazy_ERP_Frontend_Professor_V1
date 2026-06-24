@@ -252,7 +252,7 @@ const useGroupMembers = (cohortId, cohortData) => {
       .filter(Boolean);
 
     const response = await courseService.createGroup(cohortId, {
-      cohort_id: parseInt(cohortId),
+      cohort_id: cohortId,
       group_name: name,
       group_description: description || "No description provided",
       project_name: projectName,

@@ -1,6 +1,6 @@
 // API service for all backend calls
 const API_BASE_URL =
-	import.meta.env.VITE_API_BASE_URL || "http://192.168.210.97:8000/api/v1";
+	import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
 // Mock mode configuration - should match auth.js
 const USE_MOCK_API = false;
@@ -5469,7 +5469,7 @@ const MOCK_STUDENT_SESSIONS = [
     },
 ];
 // Use IPv4 address for network access
-const FINAL_API_BASE_URL = "http://192.168.1.5:8000/api/v1";
+const FINAL_API_BASE_URL = "http://localhost:8000/api/v1";
 
 // Generic API call helper
 const apiCall = async (endpoint, options = {}) => {

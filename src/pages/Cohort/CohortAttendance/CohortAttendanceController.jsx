@@ -23,10 +23,9 @@ const CohortAttendanceController = ({ cohortId, cohortData }) => {
     handleExportCSV,
   } = useCohortAttendance({ cohortId, cohortData });
 
-  // FIX: Controller pehle sirf ProfessorUI render karta tha — student ke liye
-  // kuch nahi dikhta tha. Ab user_type check karke sahi view render hota hai.
-  const user_type = cohortData?.user_type ?? 0;
-
+   const user_type = cohortData?.user_type ?? 0;
+   console.log('DEBUG user_type:', cohortData?.user_type, 'is_admin:', cohortData?.is_admin);
+  console.log('startDate:', cohortData?.start_date);
   // ── Loading state ─────────────────────────────────────────────────────────
   if (loading) {
     return (

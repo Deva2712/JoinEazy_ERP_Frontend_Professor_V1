@@ -2,7 +2,8 @@ import React from "react";
 import {
   Settings, ClipboardList, FileText, Users, Calendar, CalendarCheck,
   ArrowLeft, GraduationCap, Award, LayoutDashboard, BookOpen,
-  UserCheck, Clipboard, Megaphone, FolderOpen,
+  UserCheck, Clipboard, Megaphone, FolderOpen, CheckCircle, 
+  
 } from "lucide-react";
 import StatSummaryCard from "../../components/common/StatSummaryCard";
 
@@ -67,8 +68,19 @@ const CohortHeader = ({ cohortData, tabs, activeTab, onTabClick, onSettingsClick
                 value={(cohortData.pending_assignments || 0).toString()}
                 icon={Clipboard}
               />
+                  <StatSummaryCard
+  label="Completed Assignments"
+  value={(cohortData.completed_assignments || 0).toString()}
+  icon={CheckCircle}
+/>
+<StatSummaryCard
+  label="Total Assignments"
+  value={(cohortData.total_assignments || cohortData.assignment_count || 0).toString()}
+  icon={ClipboardList}
+/>
             </div>
           </div>
+      
 
           {/* Meta Info + Settings */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">

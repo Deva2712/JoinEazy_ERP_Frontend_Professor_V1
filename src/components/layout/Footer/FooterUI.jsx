@@ -99,7 +99,7 @@ const FooterUI = () => {
               Terms of Service
             </Link>
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              © 2026 Joineasy. All rights reserved.
+              © 2026 Joineazy. All rights reserved.
             </span>
           </div>
         </div>

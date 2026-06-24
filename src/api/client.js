@@ -39,7 +39,7 @@ const REAL_ENDPOINTS = [
 
 	/^\/users\//,
 	/^\/assets\//,
-    /^\/user\//,
+    /^\/user/,
 
 	// User dashboard — /user/dashboard-overview (real UUID cohort IDs ke liye)
 	/^\/user\/dashboard-overview/,
@@ -47,24 +47,34 @@ const REAL_ENDPOINTS = [
 	/^\/user\/settings/,
 
 	// Cohort core
-	/^\/cohort\/archived/,
-	/^\/cohort\/[^/]+\/details/,
-	/^\/cohort\/create/,
-	/^\/cohort\/edit/,
-	// Cohort sub-modules
-	/^\/cohort\/[^/]+\/announcements/,
-	/^\/cohort\/[^/]+\/assignments/,
-	/^\/cohort\/assignments\//,
-	/^\/cohort\/[^/]+\/posts/,
-	/^\/cohort\/[^/]+\/events/,
-	/^\/cohort\/[^/]+\/members/,
-	/^\/cohort\/[^/]+\/notes/,
-	/^\/cohort\/[^/]+\/resources/,
-	/^\/cohort\/[^/]+\/courses/,
-	/^\/cohort\/[^/]+\/student\/meeting/,
-      /^\/cohort\/[^/]+\/materials/,
-     /^\/cohort\/[^/]+\/discussions/,
+/^\/cohort\/archived/,
+/^\/cohort\/check-expired/,
+/^\/cohort\/create/,
+/^\/cohort\/group\//,
+/^\/cohort\/join-with-invitation/,
+/^\/cohort\/slug\//,
+/^\/cohort\/edit\//,
+/^\/cohort\/assignments\//,
 
+// Cohort sub-modules
+/^\/cohort\/[^/]+\/details/,
+/^\/cohort\/[^/]+\/announcements/,
+/^\/cohort\/[^/]+\/assignments/,
+/^\/cohort\/[^/]+\/posts/,
+/^\/cohort\/[^/]+\/events/,
+/^\/cohort\/[^/]+\/members/,
+/^\/cohort\/[^/]+\/notes/,
+/^\/cohort\/[^/]+\/resources/,
+/^\/cohort\/[^/]+\/materials/,
+/^\/cohort\/[^/]+\/student\/meeting/,
+/^\/cohort\/[^/]+\/available-members/,
+/^\/cohort\/[^/]+\/participants/,
+/^\/cohort\/[^/]+\/submission/,
+/^\/cohort\/[^/]+\/archive/,
+/^\/cohort\/[^/]+\/group/,
+/^\/cohort\/[^/]+\/invite/,
+/^\/cohort\/[^/]+$/,   
+/^\/cohort\/[^/]+\/discussions/,
 
 	// Attendance
 	/^\/attendance\/logs\//,

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import CreateCohortUI from "./CreateCohortUI";
-import {courseService} from "../../../api/services/course.service";
+import {courseService} from "@/api/services/course.service.js";
 
 const createCourseSchema = z.object({
   name: z.string().min(1, "Name cannot be empty"),
@@ -128,7 +128,7 @@ const CreateCourseController = ({
       
       if (response.success) {
         console.log("Course created successfully:", response.data);
-        // Return null to indicate success (no error message)
+        navigate("/my-courses");
         return null;
       } else {
         console.error("Course creation failed:", response.error);

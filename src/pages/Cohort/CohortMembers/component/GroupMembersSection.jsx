@@ -233,11 +233,8 @@ const GroupMembersSection = ({
                           editingGrade?.assignmentId ===
                             assignment.id;
 
-                        const isDisabled =
-                          borderColor === "yellow";
 
-                        const canGrade =
-                          userType === 1 && !isDisabled;
+const canGrade = userType === 1;
 
                         if (isEditing) {
                           return (

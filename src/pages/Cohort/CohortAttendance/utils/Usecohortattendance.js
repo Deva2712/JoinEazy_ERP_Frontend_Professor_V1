@@ -17,8 +17,8 @@ const useCohortAttendance = ({ cohortId, cohortData }) => {
       setLoading(true);
       try {
         const response = await attendanceService.getAttendanceLogs(cohortId);
-        if (response.status === "success") {
-          setAttendanceData(response.data);
+   if (response.success) {
+  setAttendanceData(response.data);
           const hasFinalLog = response.data.logs[todayStr] && response.data.isFinal;
           if (!hasFinalLog) {
             const savedDraft = localStorage.getItem(`attendance_draft_${cohortId}`);
@@ -35,18 +35,27 @@ const useCohortAttendance = ({ cohortId, cohortData }) => {
     if (cohortId) fetchAttendance();
   }, [cohortId, todayStr]);
 
-  const getDateRange = () => {
-    if (!startDate) return [];
+const getDateRange = () => {
     const dates = [];
-    let current = new Date(startDate);
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    while (current <= today) {
-      if (current.getDay() !== 0) dates.push(current.toISOString().split("T")[0]);
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    
+   
+    let current = new Date(year, month, 1);
+    current.setHours(12, 0, 0, 0);
+    
+    const end = new Date(today);
+    end.setHours(23, 59, 59, 0);
+    
+    while (current <= end) {
+      if (current.getDay() !== 0) { 
+        dates.push(current.toISOString().split("T")[0]);
+      }
       current.setDate(current.getDate() + 1);
     }
     return dates.reverse();
-  };
+};
 
   const getCustomMarkers = () => {
     const markers = Object.keys(attendanceData.logs).map((date) => ({
@@ -66,11 +75,12 @@ const useCohortAttendance = ({ cohortId, cohortData }) => {
 
   const getStatusMessage = () => {
     const isSunday = new Date(selectedDate).getDay() === 0;
-    const hasLog = attendanceData.logs[selectedDate]?.length > 0;
+    const hasLog = selectedDate in attendanceData.logs;
     if (isSunday) return "Sunday is a weekly leave day.";
     if (selectedDate === todayStr && draftData) return "You have an unsubmitted draft for today.";
     if (selectedDate === todayStr && !hasLog) return "Attendance has not been marked for today yet.";
     if (!hasLog) return "No attendance log was found for this date.";
+    if (selectedDate === todayStr && !hasLog && !attendanceData.isFinal) return "Attendance has not been marked for today yet.";
     return null;
   };
 
@@ -108,7 +118,7 @@ const useCohortAttendance = ({ cohortId, cohortData }) => {
   }, [attendanceData, startDate, draftData, todayStr]);
 
   const handleExportCSV = () => {
-    const allDates = getDateRange().reverse();
+    const allDates = getDateRange();
     const headers = ["Roll Number", "Name", ...allDates, "Total Present", "Percentage"].join(",");
     const rows = reportData.map((s) => {
       const dailyRow = allDates.map((date) => {

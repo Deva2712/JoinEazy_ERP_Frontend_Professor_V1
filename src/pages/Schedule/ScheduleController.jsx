@@ -2,6 +2,7 @@
 import React, { useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { scheduleService } from "@/api/services/schedule.service";
+import { lorService } from "@/api/services/Lor.service";
 import { useScheduleData } from "./hook/Usescheduledata";
 import ScheduleUI from "./ScheduleUI";
 
@@ -10,43 +11,75 @@ const ScheduleController = () => {
 	const navigate = useNavigate();
 
 	const {
-		userRole, loading, error, schedule, setSchedule,
-		meetingRequests, setMeetingRequests,
-		outgoingRequests, setOutgoingRequests,
-		acceptedMeetings, setAcceptedMeetings,
-		selectedDateFilter, setSelectedDateFilter,
-		allDisplayMeetings, filteredMeetings, filteredTimetable,
-		availableCourses, preFillData, fetchUserData, refreshNotifications,
+		userRole,
+		loading,
+		error,
+		schedule,
+		setSchedule,
+		meetingRequests,
+		setMeetingRequests,
+		outgoingRequests,
+		setOutgoingRequests,
+		acceptedMeetings,
+		setAcceptedMeetings,
+		selectedDateFilter,
+		setSelectedDateFilter,
+		allDisplayMeetings,
+		filteredMeetings,
+		filteredTimetable,
+		availableCourses,
+		preFillData,
+		fetchUserData,
+		refreshNotifications,
+		lorRequests,
+		setLorRequests,
 	} = useScheduleData();
 
 	const activeTab = tab || "schedule";
+
+	// ── Meeting Handlers ───────────────────────────────────────────────────
 
 	const handleAcceptRequest = async (requestId, details) => {
 		const request = meetingRequests.find((r) => r.id === requestId);
 		const response = await scheduleService.acceptMeetingRequest(requestId, details);
 		if (response.success) {
-			if (request) setAcceptedMeetings((prev) => [...prev, { ...request, status: "accepted", acceptanceDetails: details }]);
+			if (request) {
+				setAcceptedMeetings((prev) => [
+					...prev,
+					{ ...request, status: "accepted", acceptanceDetails: details },
+				]);
+			}
 			await Promise.all([fetchUserData(), refreshNotifications()]);
 		}
 	};
 
 	const handleRejectRequest = async (requestId, reason) => {
 		const response = await scheduleService.rejectMeetingRequest(requestId, reason);
-		if (response.success) await Promise.all([fetchUserData(), refreshNotifications()]);
+		if (response.success) {
+			await Promise.all([fetchUserData(), refreshNotifications()]);
+		}
 	};
 
 	const handleRescheduleRequest = async (requestId, newDateTime) => {
 		const response = await scheduleService.rescheduleMeetingRequest(requestId, newDateTime);
-		if (response.success) await Promise.all([fetchUserData(), refreshNotifications()]);
+		if (response.success) {
+			await Promise.all([fetchUserData(), refreshNotifications()]);
+		}
 	};
 
 	const handleUpdateSchedule = async (newScheduleData) => {
 		const updatedFullSchedule = {
-			...schedule, ...newScheduleData,
-			timetable: [...(schedule?.timetable || []), ...(newScheduleData.timetable || [])],
+			...schedule,
+			...newScheduleData,
+			timetable: [
+				...(schedule?.timetable || []),
+				...(newScheduleData.timetable || []),
+			],
 		};
 		const response = await scheduleService.updateSchedule(updatedFullSchedule);
-		if (response.success) setSchedule(updatedFullSchedule);
+		if (response.success) {
+			setSchedule(updatedFullSchedule);
+		}
 	};
 
 	const handleDeleteOfficeHour = async (courseId) => {
@@ -55,33 +88,106 @@ const ScheduleController = () => {
 		await handleUpdateSchedule({ officeHours: updatedOfficeHours });
 	};
 
-	const handleNewOutgoingRequest = (requestData) => {
+	const handleNewOutgoingRequest = async (requestData) => {
 		setOutgoingRequests((prev) => [...prev, { ...requestData, status: "pending" }]);
-		scheduleService.createOutgoingRequest(requestData);
+		const response = await scheduleService.createOutgoingRequest(requestData);
+		if (!response.success) {
+			console.error("Failed to create outgoing request:", response.error);
+		}
 		refreshNotifications();
 	};
 
-	const handleAddTimetableEvent = useCallback(async (eventData) => {
-		if (!schedule) return;
-		const newTimetableEntry = { ...eventData, id: `evt-${Date.now()}` };
-		const updatedSchedule = { ...schedule, timetable: [...(schedule.timetable || []), newTimetableEntry] };
-		const response = await scheduleService.updateSchedule(updatedSchedule);
-		if (response.success) setSchedule(updatedSchedule);
-	}, [schedule]);
+	const handleAddTimetableEvent = useCallback(
+		async (eventData) => {
+			if (!schedule) return;
+			const newTimetableEntry = { ...eventData, id: `evt-${Date.now()}` };
+			const updatedSchedule = {
+				...schedule,
+				timetable: [...(schedule.timetable || []), newTimetableEntry],
+			};
+			const response = await scheduleService.updateSchedule(updatedSchedule);
+			if (response.success) setSchedule(updatedSchedule);
+		},
+		[schedule],
+	);
+
+	// ── LoR Handlers ──────────────────────────────────────────────────────
+
+	const handleLorApprove = async (requestId, remarks) => {
+		const res = await lorService.approveRequest(requestId, remarks);
+		if (res.success) {
+			setLorRequests((prev) =>
+				prev.map((r) =>
+					r.id === requestId
+						? { ...r, status: "Approved", professorRemarks: remarks }
+						: r,
+				),
+			);
+		}
+	};
+
+	const handleLorReject = async (requestId, remarks) => {
+		const res = await lorService.rejectRequest(requestId, remarks);
+		if (res.success) {
+			setLorRequests((prev) =>
+				prev.map((r) =>
+					r.id === requestId
+						? { ...r, status: "Rejected", professorRemarks: remarks }
+						: r,
+				),
+			);
+		}
+	};
+
+	const handleLorSubmit = async (requestId, lorFile, remarks) => {
+		const res = await lorService.submitLor(requestId, lorFile, remarks);
+		if (res.success) {
+			// Prefer server URL; fall back to local file name in mock mode
+			const resolvedUrl = res.data?.lorFileUrl || lorFile.name;
+			setLorRequests((prev) =>
+				prev.map((r) =>
+					r.id === requestId
+						? {
+							...r,
+							status: "Submitted",
+							lorFileUrl: resolvedUrl,
+							professorRemarks: remarks,
+						}
+						: r,
+				),
+			);
+		}
+	};
 
 	return (
 		<ScheduleUI
-			userRole={userRole} loading={loading} error={error}
-			activeTab={activeTab} onTabChange={(newTab) => navigate(`/schedule/${newTab}`)}
-			onRefresh={fetchUserData} meetingRequests={meetingRequests} schedule={schedule}
-			onAcceptRequest={handleAcceptRequest} onRejectRequest={handleRejectRequest}
-			onRescheduleRequest={handleRescheduleRequest} onUpdateSchedule={handleUpdateSchedule}
-			onDeleteOfficeHour={handleDeleteOfficeHour} outgoingRequests={outgoingRequests}
-			onNewOutgoingRequest={handleNewOutgoingRequest} preFillMeeting={preFillData}
-			allDisplayMeetings={allDisplayMeetings} filteredMeetings={filteredMeetings}
-			filteredTimetable={filteredTimetable} availableCourses={availableCourses}
-			selectedDateFilter={selectedDateFilter} setSelectedDateFilter={setSelectedDateFilter}
+			userRole={userRole}
+			loading={loading}
+			error={error}
+			activeTab={activeTab}
+			onTabChange={(newTab) => navigate(`/schedule/${newTab}`)}
+			onRefresh={fetchUserData}
+			meetingRequests={meetingRequests}
+			schedule={schedule}
+			onAcceptRequest={handleAcceptRequest}
+			onRejectRequest={handleRejectRequest}
+			onRescheduleRequest={handleRescheduleRequest}
+			onUpdateSchedule={handleUpdateSchedule}
+			onDeleteOfficeHour={handleDeleteOfficeHour}
+			outgoingRequests={outgoingRequests}
+			onNewOutgoingRequest={handleNewOutgoingRequest}
+			preFillMeeting={preFillData}
+			allDisplayMeetings={allDisplayMeetings}
+			filteredMeetings={filteredMeetings}
+			filteredTimetable={filteredTimetable}
+			availableCourses={availableCourses}
+			selectedDateFilter={selectedDateFilter}
+			setSelectedDateFilter={setSelectedDateFilter}
 			onAddEvent={handleAddTimetableEvent}
+			lorRequests={lorRequests}
+			onLorApprove={handleLorApprove}
+			onLorReject={handleLorReject}
+			onLorSubmit={handleLorSubmit}
 		/>
 	);
 };

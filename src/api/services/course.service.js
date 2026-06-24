@@ -111,26 +111,27 @@ export const courseService = {
         }),
 
     // Remove member from group
-    removeGroupMember: (groupId, memberId) =>
-        apiCall(`/cohort/group/${groupId}/remove-member`, {
+ removeGroupMember: (groupId, memberId) =>
+        apiCall(`/cohort/group/${groupId}/remove-member?targetUserId=${memberId}`, {
             method: "DELETE",
-            body: JSON.stringify({ targetUserId: memberId }),
         }),
-
     // Upload course participants (Excel file)
     uploadParticipants: async (courseId, file) => {
-        try {
-            const formData = new FormData();
-            formData.append("file", file);
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+        
+        const token = localStorage.getItem("token"); // ← add karo
 
-            const resp = await fetch(
-                `${FINAL_API_BASE_URL}/cohort/${courseId}/invite`,
-                {
-                    method: "POST",
-                    credentials: "include",
-                    body: formData,
-                },
-            );
+        const resp = await fetch(
+            `${FINAL_API_BASE_URL}/cohort/${courseId}/invite`,
+            {
+                method: "POST",
+                credentials: "include",
+                headers: token ? { Authorization: `Bearer ${token}` } : {}, // ← add karo
+                body: formData,
+            },
+        );
 
             const contentType = resp.headers.get("content-type") || "";
             const isJson = contentType.includes("application/json");

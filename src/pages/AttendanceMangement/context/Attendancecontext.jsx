@@ -20,10 +20,6 @@ import {
 	clearDraftFromStorage,
 } from "../utils/attendanceUtils";
 
-// ---------------------------------------------------------------------------
-// Context
-// ---------------------------------------------------------------------------
-
 const AttendanceContext = createContext(null);
 
 export const useAttendance = () => {
@@ -33,16 +29,11 @@ export const useAttendance = () => {
 	return ctx;
 };
 
-// ---------------------------------------------------------------------------
-// Provider
-// ---------------------------------------------------------------------------
-
 export const AttendanceProvider = ({ children }) => {
 	const navigate = useNavigate();
 	const { courseId } = useParams();
 	const location = useLocation();
 
-	// ── Core data ────────────────────────────────────────────────────────────
 	const [activeCourses, setActiveCourses] = useState([]);
 	const [selectedCourse, setSelectedCourse] = useState(null);
 	const [departmentMapping, setDepartmentMapping] = useState(null);
@@ -52,30 +43,23 @@ export const AttendanceProvider = ({ children }) => {
 	const [profLogs, setProfLogs] = useState([]);
 	const [leaveApplications, setLeaveApplications] = useState([]);
 
-	// ── Loading / error ───────────────────────────────────────────────────────
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [markingLoading, setMarkingLoading] = useState(false);
 	const [submitLoading, setSubmitLoading] = useState(false);
 
-	// ── Submission ────────────────────────────────────────────────────────────
 	const [hasSubmitted, setHasSubmitted] = useState(false);
 	const [submitError, setSubmitError] = useState(null);
 
-	// ── Modals ────────────────────────────────────────────────────────────────
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 	const [isSaveSuccessOpen, setIsSaveSuccessOpen] = useState(false);
 	const [isSubmitSuccessOpen, setIsSubmitSuccessOpen] = useState(false);
 
-	// ── QR ────────────────────────────────────────────────────────────────────
 	const [qrToken, setQrToken] = useState("");
 	const [qrTimeout, setQrTimeout] = useState(60);
 	const [timeLeft, setTimeLeft] = useState(60);
 
-	// ── View ──────────────────────────────────────────────────────────────────
 	const [viewMode, setViewMode] = useState("management");
-
-	// ── Fetch initial data ────────────────────────────────────────────────────
 
 	const fetchData = async () => {
 		setLoading(true);
@@ -93,12 +77,14 @@ export const AttendanceProvider = ({ children }) => {
 					courses.map((c) => ({
 						id: c.id,
 						cohort_name: c.cohort_name || "Untitled Course",
-                        course_codes: Array.isArray(c.course_codes) ? c.course_codes : [],						member_count: c.member_count || 0,
+						course_codes: Array.isArray(c.course_codes) ? c.course_codes : [],
+						member_count: c.member_count || 0,
 					})),
 				);
 			}
 
 			if (logsRes.status === "success" || logsRes.success) {
+			 console.log('profLogs data:', logsRes.data);
 				setProfLogs(logsRes.data);
 			}
 
@@ -107,9 +93,7 @@ export const AttendanceProvider = ({ children }) => {
 			}
 		} catch (err) {
 			console.error("Failed to fetch attendance data:", err);
-			setError(
-				"Failed to load attendance records. Please check your connection.",
-			);
+			setError("Failed to load attendance records. Please check your connection.");
 		} finally {
 			setLoading(false);
 		}
@@ -120,29 +104,21 @@ export const AttendanceProvider = ({ children }) => {
 		document.title = "Attendance Management";
 	}, []);
 
-	// ── Sync view mode from URL ────────────────────────────────────────────────
-
 	useEffect(() => {
 		if (location.pathname.includes("/logs")) {
 			setViewMode("prof-attendance");
 			setSelectedCourse(null);
 		} else if (courseId) {
-			const found = activeCourses.find(
-				(c) => c.id.toString() === courseId,
-			);
+			const found = activeCourses.find((c) => c.id.toString() === courseId);
 			if (found) {
 				setSelectedCourse(found);
-				setViewMode(
-					location.pathname.endsWith("/qr") ? "qr-view" : "management",
-				);
+				setViewMode(location.pathname.endsWith("/qr") ? "qr-view" : "management");
 			}
 		} else {
 			setViewMode("management");
 			setSelectedCourse(null);
 		}
 	}, [courseId, activeCourses, location.pathname]);
-
-	// ── Fetch students when a course is selected ──────────────────────────────
 
 	useEffect(() => {
 		if (!selectedCourse) return;
@@ -152,9 +128,7 @@ export const AttendanceProvider = ({ children }) => {
 			setSubmitError(null);
 
 			try {
-				const response = await attendanceService.getAttendanceLogs(
-					selectedCourse.id,
-				);
+				const response = await attendanceService.getAttendanceLogs(selectedCourse.id);
 
 				if (response.status === "success" || response.success) {
 					const { students: list, logs, isFinal } = response.data;
@@ -168,9 +142,7 @@ export const AttendanceProvider = ({ children }) => {
 						setHasSubmitted(true);
 						setPresentIds(logsForToday);
 						setAbsentIds(
-							(list || [])
-								.map((s) => s.id)
-								.filter((id) => !logsForToday.includes(id)),
+							(list || []).map((s) => s.id).filter((id) => !logsForToday.includes(id)),
 						);
 						clearDraftFromStorage(selectedCourse.id);
 					} else {
@@ -195,14 +167,10 @@ export const AttendanceProvider = ({ children }) => {
 		fetchStudents();
 	}, [selectedCourse?.id]);
 
-	// ── QR timer ─────────────────────────────────────────────────────────────
-
 	const handleTimerExpiry = useCallback(() => {
 		if (hasSubmitted) return;
 		const marked = [...presentIds, ...absentIds];
-		const remaining = students
-			.map((s) => s.id)
-			.filter((id) => !marked.includes(id));
+		const remaining = students.map((s) => s.id).filter((id) => !marked.includes(id));
 		if (remaining.length > 0) {
 			setAbsentIds((prev) => [...new Set([...prev, ...remaining])]);
 		}
@@ -224,11 +192,7 @@ export const AttendanceProvider = ({ children }) => {
 
 	const generateNewQR = useCallback(() => {
 		if (!selectedCourse || hasSubmitted) return;
-		const payload = JSON.stringify({
-			cid: selectedCourse.id,
-			ts: Date.now(),
-			exp: qrTimeout,
-		});
+		const payload = JSON.stringify({ cid: selectedCourse.id, ts: Date.now(), exp: qrTimeout });
 		setQrToken(encodeBase64(payload));
 		setTimeLeft(qrTimeout);
 	}, [selectedCourse, hasSubmitted, qrTimeout]);
@@ -238,8 +202,6 @@ export const AttendanceProvider = ({ children }) => {
 			generateNewQR();
 		}
 	}, [viewMode, qrToken, hasSubmitted, generateNewQR, timeLeft]);
-
-	// ── Marking handlers ──────────────────────────────────────────────────────
 
 	const handleMarkPresent = (id) => {
 		if (hasSubmitted) return;
@@ -265,8 +227,6 @@ export const AttendanceProvider = ({ children }) => {
 		}
 	};
 
-	// ── Draft & submission ────────────────────────────────────────────────────
-
 	const handleManualSaveDraft = () => {
 		if (!selectedCourse || hasSubmitted) return;
 		saveDraftToStorage(selectedCourse.id, { presentIds, absentIds });
@@ -280,6 +240,7 @@ export const AttendanceProvider = ({ children }) => {
 		setIsConfirmModalOpen(false);
 
 		try {
+			// FIX: cohortId was undefined — use selectedCourse.id instead
 			const response = await attendanceService.markAttendance(
 				selectedCourse.id,
 				{
@@ -287,7 +248,7 @@ export const AttendanceProvider = ({ children }) => {
 					date: getTodayString(),
 					status: "final",
 				},
-				cohortId
+				selectedCourse.id,  // cohortId = same as courseId for this context
 			);
 
 			if (response.status === "success" || response.success) {
@@ -297,9 +258,7 @@ export const AttendanceProvider = ({ children }) => {
 				clearDraftFromStorage(selectedCourse.id);
 				setIsSubmitSuccessOpen(true);
 			} else {
-				throw new Error(
-					response.message || "Failed to finalize attendance",
-				);
+				throw new Error(response.message || "Failed to finalize attendance");
 			}
 		} catch (err) {
 			setSubmitError("Submission failed. Please try again.");
@@ -309,15 +268,9 @@ export const AttendanceProvider = ({ children }) => {
 		}
 	};
 
-	// ── Navigation actions ────────────────────────────────────────────────────
-
 	const actions = {
 		onSelectCourse: (course) =>
-			navigate(
-				course
-					? `/attendance-management/${course.id}`
-					: "/attendance-management",
-			),
+			navigate(course ? `/attendance-management/${course.id}` : "/attendance-management"),
 		onRefresh: fetchData,
 		onGenerateQR: generateNewQR,
 		onMarkPresent: handleMarkPresent,
@@ -332,16 +285,11 @@ export const AttendanceProvider = ({ children }) => {
 		setSubmitSuccessModal: setIsSubmitSuccessOpen,
 		switchToLogs: () => navigate("/attendance-management/logs"),
 		switchToManagement: () => navigate("/attendance-management"),
-		openQRView: () =>
-			navigate(`/attendance-management/${courseId}/qr`),
-		closeQRView: () =>
-			navigate(`/attendance-management/${courseId}`),
+		openQRView: () => navigate(`/attendance-management/${courseId}/qr`),
+		closeQRView: () => navigate(`/attendance-management/${courseId}`),
 	};
 
-	// ── Exposed value ─────────────────────────────────────────────────────────
-
 	const value = {
-		// data
 		courses: activeCourses,
 		students,
 		presentIds,
@@ -349,8 +297,6 @@ export const AttendanceProvider = ({ children }) => {
 		profLogs,
 		leaveApplications,
 		qr: { token: qrToken, timeLeft, qrTimeout },
-
-		// view state
 		loading,
 		error,
 		markingLoading,
@@ -363,8 +309,6 @@ export const AttendanceProvider = ({ children }) => {
 		isConfirmModalOpen,
 		isSaveSuccessOpen,
 		isSubmitSuccessOpen,
-
-		// actions
 		actions,
 	};
 

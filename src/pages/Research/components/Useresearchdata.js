@@ -40,8 +40,8 @@ export function useResearchData() {
                 // Backend returns: { projects, discover, applications }
                 setMyProjects(dashboardRes.data.projects          || []);
                 setAvailableProjects(dashboardRes.data.discover   || []);
-                setMyPublications(                                 []);
-                setAvailablePublications(                         []);
+               setMyPublications(dashboardRes.data.publications || []);
+setAvailablePublications(dashboardRes.data.availablePublications || []);
 
                 const sentApps = (dashboardRes.data.applications || []).map(
                     (app) => ({ ...app, isSentApplication: true }),

@@ -173,7 +173,7 @@ const MeetingCard = ({
 								<div className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30">
 									<div className="flex items-center gap-3">
 										<div className="size-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-700 font-bold">
-											{meeting.participantName.charAt(0)}
+											{(meeting.participantName || "?").charAt(0)}
 										</div>
 										<div>
 											<p className="text-sm font-bold text-gray-900 dark:text-white">

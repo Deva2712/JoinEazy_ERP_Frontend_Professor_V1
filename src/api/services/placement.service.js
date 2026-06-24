@@ -1,6 +1,11 @@
 import { apiCall  } from "../client";
 import { USE_MOCK_API,FINAL_API_BASE_URL } from "../config";
-import{ MOCK_PLACEMENT_JOBS, _placementApplications, _placementHistory, _placementResumeUrl, _placementProjectUrl } from "../mock";
+import { MOCK_PLACEMENT_JOBS, _placementApplications as _placementApplicationsInit, _placementHistory, _placementResumeUrl as _placementResumeUrlInit, _placementProjectUrl as _placementProjectUrlInit } from "../mock";
+
+// Mutable local copies — ES modules don't allow reassigning named imports
+let _placementApplications = [..._placementApplicationsInit];
+let _placementResumeUrl = _placementResumeUrlInit;
+let _placementProjectUrl = _placementProjectUrlInit;
 
 export const placementService = {
     // ── Job Listings ───────────────────────────────────────────────────────

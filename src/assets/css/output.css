@@ -2673,6 +2673,10 @@ body{
   max-height: calc(100vh - 300px);
 }
 
+.max-h-\[calc\(100vh-320px\)\]{
+  max-height: calc(100vh - 320px);
+}
+
 .max-h-\[calc\(100vh-350px\)\]{
   max-height: calc(100vh - 350px);
 }
@@ -2731,6 +2735,10 @@ body{
 
 .min-h-\[calc\(100vh-120px\)\]{
   min-height: calc(100vh - 120px);
+}
+
+.min-h-\[calc\(100vh-320px\)\]{
+  min-height: calc(100vh - 320px);
 }
 
 .min-h-screen{
@@ -3842,6 +3850,11 @@ body{
 .rounded-b-none{
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
+}
+
+.rounded-r-lg{
+  border-top-right-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
 }
 
 .rounded-r-xl{
@@ -6466,6 +6479,10 @@ body{
   padding-bottom: 92px;
 }
 
+.pl-0{
+  padding-left: 0px;
+}
+
 .pl-1{
   padding-left: 0.25rem;
 }
@@ -6552,6 +6569,10 @@ body{
 
 .pr-4{
   padding-right: 1rem;
+}
+
+.pr-6{
+  padding-right: 1.5rem;
 }
 
 .pr-8{
@@ -13897,6 +13918,10 @@ body{
 
   .lg\:col-span-8{
     grid-column: span 8 / span 8;
+  }
+
+  .lg\:col-span-9{
+    grid-column: span 9 / span 9;
   }
 
   .lg\:mx-4{

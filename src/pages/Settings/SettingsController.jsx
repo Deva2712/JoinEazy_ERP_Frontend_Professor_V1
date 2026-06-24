@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+// import { userAPI, studentProfileAPI } from "../../services/api";
 import { userService  } from "@/api/services/user.service";
 import { studentProfileService } from "@/api/services/studentProfile.service";
 import { changePassword, logoutUser } from "../../services/auth";
@@ -16,6 +17,7 @@ const SettingsController = () => {
 
     const isStudent = localStorage.getItem("userRole") === "student";
 
+    // ── Professor profile data ────────────────────────────────────────────
     const [profileData, setProfileData] = useState({
         fullName: "", dateOfBirth: "", gender: "", employeeId: "",
         department: "", designation: "", officeLocation: "",
@@ -25,6 +27,7 @@ const SettingsController = () => {
         panNumber: "", aadhaarNumber: "", documents: [],
     });
 
+    // ── Student profile data (core fields) ───────────────────────────────
     const [studentData, setStudentData] = useState({
         fullName: "", dob: "", gender: "", aadhaarNumber: "",
         nationality: "Indian", religion: "", casteCategory: "",
@@ -52,6 +55,7 @@ const SettingsController = () => {
         visaExpiry: "", nationality2: "",
     });
 
+    // ── Student portfolio data (entrance, docs, projects) ────────────────
     const [portfolioData, setPortfolioData] = useState({
         entranceExams:  [],
         documents:      [],
@@ -62,13 +66,13 @@ const SettingsController = () => {
     });
 
     const [additionalLinks] = useState([
-        { id: "privacy-policy",   label: "Privacy Policy",             path: "/privacy"  },
-        { id: "terms-conditions", label: "Terms and Conditions",       path: "/terms"    },
-        { id: "about-us",         label: "About Us",                   path: "/about"    },
-        { id: "feedback",         label: "Feedback / Feature Request", path: "/feedback" },
+        { id: "privacy-policy", label: "Privacy Policy",            path: "/privacy"  },
+        { id: "terms-conditions", label: "Terms and Conditions",    path: "/terms"    },
+        { id: "about-us",       label: "About Us",                  path: "/about"    },
+        { id: "feedback",       label: "Feedback / Feature Request", path: "/feedback" },
     ]);
 
-    const currentView    = view || "list";
+    const currentView   = view || "list";
     const setCurrentView = (newView) => {
         if (newView === "list") navigate("/settings");
         else navigate(`/settings/${newView}`);
@@ -85,10 +89,12 @@ const SettingsController = () => {
             setError(null);
 
             if (isStudent) {
+                // Single round-trip for all student profile data
                 const res = await studentProfileService.getProfile();
                 if (!res.success) throw new Error(res.error || "Failed to load profile");
 
                 const { studentData: sd = {}, portfolioData: pd = {} } = res.data;
+
                 setStudentData(prev => ({ ...prev, ...sd }));
                 setPortfolioData(prev => ({ ...prev, ...pd }));
 
@@ -100,25 +106,16 @@ const SettingsController = () => {
                     );
                 }
             } else {
-                // ── Professor: fetch real profile fields from backend ──────────
-                const fields = [
-                    "id","name","email","role",
-                    "dateOfBirth","gender","employeeId","department","designation","officeLocation",
-                    "permanentAddress","currentAddress","city","state","pinCode","country",
-                    "mobileNumber","alternateNumber","personalEmail","linkedinProfile",
-                    "panNumber","aadhaarNumber","profile_pic",
-                ].join(",");
-
-                const res = await userService.getUserDetails(fields);
+                // Professor: use existing userService
+                const res = await userService.getDashboardOverview();
                 if (!res.success) throw new Error(res.error || "Failed to load profile");
 
-                const userData = res.data || {};
-                setProfileData(prev => ({
-                    ...prev,
-                    ...userData,
-                    fullName:      userData.name  || prev.fullName,
-                    officialEmail: userData.email || prev.officialEmail,
-                }));
+                const userData = res.data.user || res.data;
+                // Convert null values to empty strings to prevent React controlled/uncontrolled input warning
+                const sanitized = Object.fromEntries(
+                    Object.entries(userData).map(([k, v]) => [k, v === null ? "" : v])
+                );
+                setProfileData(prev => ({ ...prev, ...sanitized }));
 
                 if (userData.profile_pic) {
                     setProfileImageUrl(
@@ -158,20 +155,17 @@ const SettingsController = () => {
         } else {
             setProfileData(prev => ({ ...prev, profilePic: file }));
         }
+        // Persist immediately
         return handleProfileSave();
     };
 
+    // Saves core profile fields (personal → bank, passport, etc.)
     const handleProfileSave = async () => {
         setLoading(true);
         try {
             const res = isStudent
                 ? await studentProfileService.updateProfile(studentData)
                 : await userService.updateUserSettings(profileData);
-
-            if (res.success) {
-                // Re-fetch to sync latest data from backend
-                await fetchUserData();
-            }
 
             return res.success
                 ? "Profile updated successfully"
@@ -183,6 +177,7 @@ const SettingsController = () => {
         }
     };
 
+    // Saves portfolio-only fields (entrance exams, docs, project links)
     const handlePortfolioSave = async () => {
         setLoading(true);
         try {
@@ -197,10 +192,12 @@ const SettingsController = () => {
         }
     };
 
+    // Uploads a document file (marksheet, certificate, etc.)
     const handleDocumentUpload = async (file, docType) => {
         try {
             const res = await studentProfileService.uploadDocument(file, docType);
             if (res.success) {
+                // Optimistically add the new doc to local state
                 setPortfolioData(prev => ({
                     ...prev,
                     documents: [res.data, ...prev.documents],
@@ -215,8 +212,8 @@ const SettingsController = () => {
     };
 
     const handlePasswordSave = async (current, newPass, confirm) => {
-        if (newPass !== confirm) return "Passwords do not match";
-        if (newPass.length < 7)  return "Password must be at least 7 characters long";
+        if (newPass !== confirm)    return "Passwords do not match";
+        if (newPass.length < 7)     return "Password must be at least 7 characters long";
         try {
             const res = await changePassword(current, newPass);
             return res.success ? "Password updated successfully!" : res.error;
@@ -241,6 +238,7 @@ const SettingsController = () => {
         }
     };
 
+    // ── Student: render StudentProfileUI ─────────────────────────────────
     if (isStudent) {
         return (
             <StudentProfileUI
@@ -266,6 +264,7 @@ const SettingsController = () => {
         );
     }
 
+    // ── Professor: render SettingsUI ──────────────────────────────────────
     return (
         <SettingsUI
             currentView={currentView}
