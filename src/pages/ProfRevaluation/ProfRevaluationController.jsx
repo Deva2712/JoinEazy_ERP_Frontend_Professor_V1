@@ -23,12 +23,27 @@ const ProfRevaluationController = () => {
                 throw new Error(response.error || "Failed to load revaluation data");
             }
 
-            const { pendingRequests, resolvedRequests, stats, myCourses } = response.data;
+            // Backend returns: { success, overview, requests: [...] }
+            // requests already have normalized fields (studentName, subjectName, etc.)
+            const allRequests = response.requests ?? response.data?.requests ?? [];
+            const overview    = response.overview  ?? response.data?.overview ?? {};
 
-            setPendingRequests(pendingRequests   ?? []);
-            setResolvedRequests(resolvedRequests ?? []);
-            setStats(stats                       ?? {});
-            setMyCourses(myCourses               ?? []);
+            // Backend already normalizes status to Pending/UnderReview/Approved/Rejected
+            const pending  = allRequests.filter(r => r.status === "Pending");
+            const inReview = allRequests.filter(r => r.status === "UnderReview");
+            const resolved = allRequests.filter(r => ["Approved", "Rejected"].includes(r.status));
+
+            setPendingRequests([...pending, ...inReview]);
+            setResolvedRequests(resolved);
+            setStats({
+                total:       overview.total       ?? allRequests.length,
+                pending:     overview.pending      ?? pending.length,
+                underReview: overview.under_review ?? inReview.length,
+                resolved:    overview.resolved     ?? resolved.length,
+                approved:    allRequests.filter(r => r.status === "Approved").length,
+                rejected:    allRequests.filter(r => r.status === "Rejected").length,
+            });
+            setMyCourses([]);
         } catch (err) {
             console.error("Prof Revaluation Load Error:", err);
             setError(err.message || "Failed to load revaluation data");

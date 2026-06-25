@@ -39,13 +39,12 @@ const RegistrarController = () => {
     useEffect(() => { fetchData(); document.title = "Registrar Office – Joineazy"; }, []);
 
     // ── Document handlers ────────────────────────────────────────────────────
-    const handleRequestDocument = async (data, lorFile) => {
-        if (lorFile) data.supportingDocFileName = lorFile.name;
-        const res = await registrarService.createRequest(data);
-        if (res.success) await fetchData();
-        else console.error("Request creation failed:", res.error);
-    };
-
+   
+const handleRequestDocument = async (data, lorFile) => {
+    const res = await registrarService.createRequest(data, lorFile || null);
+    if (res.success) await fetchData();
+    else console.error("Request creation failed:", res.error);
+};
     const handleCancelRequest = async (requestId) => {
         const res = await registrarService.cancelRequest(requestId);
         if (res.success) await fetchData();

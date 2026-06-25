@@ -1,51 +1,37 @@
+// src/api/services/registrar.service.js
 import { apiCall } from "../client";
 
-import { USE_MOCK_API, FINAL_API_BASE_URL } from "../config";
-// --- REGISTRAR ---
 export const registrarService = {
-    getOverview: () => apiCall("/registrar/overview"),
+  getOverview: () => apiCall("/registrar/overview"),
 
-    getRequests: () => apiCall("/registrar/requests"),
+  getRequests: () => apiCall("/registrar/requests"),
 
-    createRequest: (data, file = null) => {
-        if (USE_MOCK_API) {
-            return apiCall("/registrar/requests", {
-                method: "POST",
-                body: JSON.stringify({
-                    ...data,
-                    ...(file && { supportingDocFileName: file.name }),
-                }),
-            });
-        }
+  // data — form fields, file — File object (optional, for LoR supporting doc)
+  createRequest: (data, file = null) => {
+    if (file instanceof File) {
+      const fd = new FormData();
+      Object.entries(data).forEach(([k, v]) => {
+        if (v !== null && v !== undefined) fd.append(k, String(v));
+      });
+      fd.append("file", file);
+      return apiCall("/registrar/requests", { method: "POST", body: fd });
+    }
+    return apiCall("/registrar/requests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  },
 
-        if (file) {
-            const formData = new FormData();
-            formData.append("file", file);
-            Object.entries(data).forEach(([k, v]) => formData.append(k, v));
-            return fetch(`${FINAL_API_BASE_URL}/registrar/requests`, {
-                method: "POST",
-                credentials: "include",
-                body: formData,
-            }).then((r) => r.json());
-        }
+  getRequestById: (requestId) => apiCall(`/registrar/requests/${requestId}`),
 
-        return apiCall("/registrar/requests", {
-            method: "POST",
-            body: JSON.stringify(data),
-        });
-    },
+  updateRequest: (requestId, updates) =>
+    apiCall(`/registrar/requests/${requestId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    }),
 
-    getRequestById: (requestId) =>
-        apiCall(`/registrar/requests/${requestId}`),
-
-    updateRequest: (requestId, updates) =>
-        apiCall(`/registrar/requests/${requestId}`, {
-            method: "PATCH",
-            body: JSON.stringify(updates),
-        }),
-
-    cancelRequest: (requestId) =>
-        apiCall(`/registrar/requests/${requestId}`, {
-            method: "DELETE",
-        }),
+  cancelRequest: (requestId) =>
+    apiCall(`/registrar/requests/${requestId}`, { method: "DELETE" }),
 };

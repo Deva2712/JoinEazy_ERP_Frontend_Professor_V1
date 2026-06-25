@@ -1,23 +1,36 @@
+// src/api/services/bulletin.service.js
 import { apiCall } from "../client";
 
-// Bulletin APIs
+const buildBulletinPayload = (data) => {
+  if (data.attachment instanceof File) {
+    const fd = new FormData();
+    const { attachment, ...rest } = data;
+    Object.entries(rest).forEach(([k, v]) => {
+      if (v !== null && v !== undefined) fd.append(k, String(v));
+    });
+    fd.append("attachment", attachment); // field name matches backend multer("attachment")
+    return { body: fd };
+  }
+  return {
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  };
+};
+
 export const bulletinService = {
-    // Fetches bulletins based on level (institution, department, course)
-    getBulletins: (params = {}) => {
-        const query = new URLSearchParams(params).toString();
-        return apiCall(`/bulletins${query ? `?${query}` : ""}`);
-    },
+  getBulletins: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiCall(`/bulletins${query ? `?${query}` : ""}`);
+  },
 
-    // Creates a new bulletin with priority and attachment support
-    createBulletin: (data) =>
-        apiCall("/bulletins", {
-            method: "POST",
-            body: JSON.stringify(data),
-        }),
+  createBulletin: (data) =>
+    apiCall("/bulletins", {
+      method: "POST",
+      ...buildBulletinPayload(data),
+    }),
 
-    // Deletes a specific bulletin
-    deleteBulletin: (bulletinId) =>
-        apiCall(`/bulletins/${bulletinId}`, {
-            method: "DELETE",
-        }),
+  deleteBulletin: (bulletinId) =>
+    apiCall(`/bulletins/${bulletinId}`, {
+      method: "DELETE",
+    }),
 };

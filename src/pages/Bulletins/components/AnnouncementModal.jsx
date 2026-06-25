@@ -12,33 +12,21 @@ import {
 	AlertCircle,
 } from "lucide-react";
 
-/**
- * AnnouncementModal Component
- * Provides a formal interface for creating new announcements targeted at specific courses.
- * Includes form validation placeholders and file attachment previews.
- */
 const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 	const fileInputRef = useRef(null);
 
-	/**
-	 * Form State: Captures metadata required for both Global Bulletins and Course Announcements.
-	 * Default level is set to 'course'.
-	 */
 	const [formData, setFormData] = useState({
 		title: "",
 		content: "",
 		level: "course",
 		priority: "Normal",
 		courseId: "",
+		cohortId: "",   // controller cohortId check karta hai
 		attachment: null,
 	});
 
 	if (!isOpen) return null;
 
-	/**
-	 * Submission Orchestration: Invokes the parent's onSubmit handler
-	 * and resets the local form state upon success.
-	 */
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		const res = await onSubmit(formData);
@@ -49,16 +37,26 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 				level: "course",
 				priority: "Normal",
 				courseId: "",
+				cohortId: "",
 				attachment: null,
 			});
 			onClose();
 		}
 	};
 
+	const handleCourseChange = (e) => {
+		const val = e.target.value;
+		setFormData((prev) => ({
+			...prev,
+			courseId: val,
+			cohortId: val, // dono sync rakho
+		}));
+	};
+
 	return (
 		<div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
 			<div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
-				{/* Modal Header Section */}
+				{/* Header */}
 				<div className="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						<div className="p-2 rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30">
@@ -76,14 +74,14 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 					</button>
 				</div>
 
-				{/* Modal Form Body: Scrollable to accommodate smaller viewports */}
+				{/* Body */}
 				<div className="p-6 overflow-y-auto">
 					<form
 						id="announcement-form"
 						onSubmit={handleSubmit}
 						className="space-y-6"
 					>
-						{/* Title Field */}
+						{/* Title */}
 						<div className="space-y-2">
 							<label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400">
 								<FileText className="size-3" /> Title{" "}
@@ -94,16 +92,11 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 								className="w-full h-11 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 outline-none transition-all"
 								placeholder="e.g., Midterm Rescheduled"
 								value={formData.title}
-								onChange={(e) =>
-									setFormData({
-										...formData,
-										title: e.target.value,
-									})
-								}
+								onChange={(e) => setFormData({ ...formData, title: e.target.value })}
 							/>
 						</div>
 
-						{/* Selection Grid: Targets and Urgency */}
+						{/* Target Course + Priority */}
 						<div className="grid grid-cols-2 gap-4">
 							<div className="space-y-2">
 								<label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400">
@@ -114,12 +107,7 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 									<select
 										className="w-full h-11 pl-4 pr-11 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 outline-none appearance-none"
 										value={formData.courseId}
-										onChange={(e) =>
-											setFormData({
-												...formData,
-												courseId: e.target.value,
-											})
-										}
+										onChange={handleCourseChange}
 										required
 									>
 										<option value="">Select Class</option>
@@ -135,20 +123,14 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 
 							<div className="space-y-2">
 								<label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400">
-									<AlertCircle className="size-3" />{" "}
-									Priority{" "}
+									<AlertCircle className="size-3" /> Priority{" "}
 									<span className="text-red-500">*</span>
 								</label>
 								<div className="relative group">
 									<select
 										className="w-full h-11 pl-4 pr-11 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 outline-none appearance-none"
 										value={formData.priority}
-										onChange={(e) =>
-											setFormData({
-												...formData,
-												priority: e.target.value,
-											})
-										}
+										onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
 										required
 									>
 										<option value="Normal">Normal</option>
@@ -160,7 +142,7 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 							</div>
 						</div>
 
-						{/* Main Content Area */}
+						{/* Content */}
 						<div className="space-y-2">
 							<label className="block text-xs font-bold uppercase tracking-widest text-gray-400">
 								Announcement Details{" "}
@@ -172,16 +154,11 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 								className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
 								placeholder="Detail your announcement here..."
 								value={formData.content}
-								onChange={(e) =>
-									setFormData({
-										...formData,
-										content: e.target.value,
-									})
-								}
+								onChange={(e) => setFormData({ ...formData, content: e.target.value })}
 							/>
 						</div>
 
-						{/* Custom File Upload Interaction Area */}
+						{/* Attachment */}
 						<div className="space-y-2">
 							<label className="block text-xs font-bold uppercase tracking-widest text-gray-400">
 								Attachments
@@ -211,11 +188,9 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 									type="file"
 									ref={fileInputRef}
 									className="hidden"
+									accept="image/*,application/pdf,.doc,.docx"
 									onChange={(e) =>
-										setFormData({
-											...formData,
-											attachment: e.target.files[0],
-										})
+										setFormData({ ...formData, attachment: e.target.files[0] })
 									}
 								/>
 							</div>
@@ -223,7 +198,7 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit, cohorts }) => {
 					</form>
 				</div>
 
-				{/* Modal Actions Footer */}
+				{/* Footer */}
 				<div className="p-5 border-t border-gray-100 dark:border-gray-700 flex gap-3 bg-gray-50/50 dark:bg-gray-800/50">
 					<button
 						type="button"

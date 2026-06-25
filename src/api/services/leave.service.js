@@ -1,36 +1,51 @@
+// src/api/services/leave.service.js
 import { apiCall } from "../client";
 
+const buildLeavePayload = (data) => {
+  if (data.supporting_doc_file instanceof File) {
+    const fd = new FormData();
+    const { supporting_doc_file, supporting_doc_link, timings, ...rest } = data;
+    Object.entries(rest).forEach(([k, v]) => {
+      if (v !== null && v !== undefined) fd.append(k, v);
+    });
+    if (timings?.startTime) fd.append("timings[startTime]", timings.startTime);
+    if (timings?.endTime)   fd.append("timings[endTime]",   timings.endTime);
+    if (supporting_doc_link) fd.append("supporting_doc_link", supporting_doc_link);
+    fd.append("supporting_doc", supporting_doc_file);
+    return { body: fd }; // Content-Type auto set hoga multipart/form-data
+  }
+  return {
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  };
+};
 
-// Leave Management APIs
 export const leaveService = {
-    // Retrieves the user's leave balance and history
-    getApplications: () => apiCall("/leaves/applications"),
+  getApplications: () => apiCall("/leaves/applications"),
 
-    // Submits a new leave application with structured timing data
-    createApplication: (data) =>
-        apiCall("/leaves/apply", {
-            method: "POST",
-            body: JSON.stringify(data),
-        }),
+  createApplication: (data) =>
+    apiCall("/leaves/apply", {
+      method: "POST",
+      ...buildLeavePayload(data),
+    }),
 
-    // Updates an existing leave application (used for resubmission or editing)
-    updateApplication: (id, data) =>
-        apiCall(`/leaves/update/${id}`, {
-            method: "POST",
-            body: JSON.stringify(data),
-        }),
+  updateApplication: (id, data) =>
+    apiCall(`/leaves/update/${id}`, {
+      method: "POST",
+      ...buildLeavePayload(data),
+    }),
 
-    // Updates approval status by HoD or HR
-    updateApproval: (id, role, action, remark = null) =>
-        apiCall(`/leaves/approve/${id}`, {
-            method: "POST",
-            body: JSON.stringify({ role, action, remark }),
-        }),
+  updateApproval: (id, role, action, remark = null) =>
+    apiCall(`/leaves/approve/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, action, remark }),
+    }),
 
-    // Responds to an incoming substitution request
-    respondToSubstitution: (id, action) =>
-        apiCall(`/leaves/substitutions/${id}`, {
-            method: "POST",
-            body: JSON.stringify({ action }),
-        }),
+  respondToSubstitution: (id, action) =>
+    apiCall(`/leaves/substitutions/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    }),
 };

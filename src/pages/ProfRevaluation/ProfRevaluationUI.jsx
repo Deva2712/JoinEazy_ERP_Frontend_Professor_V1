@@ -1,4 +1,4 @@
- // src/pages/ProfRevaluation/ProfRevaluationUI.jsx
+// src/pages/ProfRevaluation/ProfRevaluationUI.jsx
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +20,8 @@ const TABS = [
     { key: "resolved", label: "History",             icon: CheckCircle2 },
 ];
 
-const STATUS_FILTERS = ["All", "Pending", "UnderReview", "Approved", "Rejected"];
+const STATUS_FILTERS_PENDING  = ["All", "Pending", "UnderReview"];
+const STATUS_FILTERS_RESOLVED = ["All", "Approved", "Rejected"];
 
 /* ─── ProfRevaluationUI ───────────────────────────────────────────────── */
 export default function ProfRevaluationUI({
@@ -37,6 +38,7 @@ export default function ProfRevaluationUI({
 }) {
     const navigate = useNavigate();
     const [activeTab,     setActiveTab]     = useState("pending");
+    const handleTabChange = (key) => { setActiveTab(key); setFilterStatus("All"); };
     const [search,        setSearch]        = useState("");
     const [filterStatus,  setFilterStatus]  = useState("All");
     const [filterSubject, setFilterSubject] = useState("All");
@@ -172,7 +174,7 @@ export default function ProfRevaluationUI({
 
                         {/* Status filter pill group */}
                         <div className="flex p-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl gap-0.5 overflow-x-auto no-scrollbar shrink-0">
-                            {STATUS_FILTERS.map((s) => (
+                            {(activeTab === "pending" ? STATUS_FILTERS_PENDING : STATUS_FILTERS_RESOLVED).map((s) => (
                                 <button
                                     key={s}
                                     onClick={() => setFilterStatus(s)}
@@ -212,7 +214,9 @@ export default function ProfRevaluationUI({
                         <div className="text-center py-20">
                             <ClipboardCheck className="size-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                             <p className="text-gray-400 font-semibold">
-                                {activeTab === "pending" ? "No pending requests." : "No resolved requests yet."}
+                                {activeTab === "pending"
+                                    ? (filterStatus === "All" ? "No active requests." : `No ${filterStatus === "UnderReview" ? "in review" : filterStatus.toLowerCase()} requests.`)
+                                    : (filterStatus === "All" ? "No history yet." : `No ${filterStatus.toLowerCase()} requests yet.`)}
                             </p>
                         </div>
                     ) : (
