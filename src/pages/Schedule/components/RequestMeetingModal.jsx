@@ -19,6 +19,7 @@ const ROLE_MAP = {
 
 const RequestMeetingModal = ({ isOpen, onClose, onConfirm, initialData }) => {
 	const initialState = {
+		recipientId: "",
 		recipientName: "",
 		recipientRole: "Professor",
 		recipientDepartment: "",
@@ -46,6 +47,7 @@ const RequestMeetingModal = ({ isOpen, onClose, onConfirm, initialData }) => {
 			if (initialData) {
 				setFormData((prev) => ({
 					...prev,
+					recipientId:         initialData.recipientId || "",
 					recipientName:       initialData.recipientName || "",
 					recipientRole:       initialData.recipientRole || "Professor",
 					recipientDepartment: initialData.recipientDepartment || "",
@@ -102,7 +104,14 @@ const RequestMeetingModal = ({ isOpen, onClose, onConfirm, initialData }) => {
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
-		setFormData((prev) => ({ ...prev, [name]: value }));
+		setFormData((prev) => ({
+			...prev,
+			[name]: value,
+			// If the recipient name is being typed/edited manually, the previously
+			// selected recipientId is no longer valid for this text — clear it so
+			// we don't silently submit a stale/mismatched id.
+			...(name === "recipientName" ? { recipientId: "" } : {}),
+		}));
 		if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
 
 		// Trigger search for recipientName
@@ -129,16 +138,19 @@ const RequestMeetingModal = ({ isOpen, onClose, onConfirm, initialData }) => {
 	const handleSelectSuggestion = (user) => {
 		setFormData((prev) => ({
 			...prev,
+			recipientId:         user.id,
 			recipientName:       user.name || user.email,
 			recipientDepartment: user.department || prev.recipientDepartment,
 		}));
 		setSuggestions([]);
 		setShowDropdown(false);
+		if (errors.recipientName) setErrors((prev) => ({ ...prev, recipientName: null }));
 	};
 
 	const validate = () => {
 		const newErrors = {};
 		if (!formData.recipientName.trim()) newErrors.recipientName = "Required";
+		else if (!formData.recipientId) newErrors.recipientName = "Please select a recipient from the suggestions list";
 		if (!formData.subject.trim()) newErrors.subject = "Required";
 		if (!formData.requestedDateTime) newErrors.requestedDateTime = "Required";
 		if (!formData.reason.trim()) newErrors.reason = "Required";
@@ -148,25 +160,41 @@ const RequestMeetingModal = ({ isOpen, onClose, onConfirm, initialData }) => {
 		return Object.keys(newErrors).length === 0;
 	};
 
-	const handleSubmit = (e) => {
+	const [submitting, setSubmitting] = useState(false);
+
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 		if (!validate()) return;
-		onConfirm({
-			id:                  Date.now(),
-			recipientName:       formData.recipientName.trim(),
-			recipientRole:       formData.recipientRole,
-			recipientDepartment: formData.recipientDepartment.trim(),
-			subject:             formData.subject.trim(),
-			requestedTime:       new Date(formData.requestedDateTime).toISOString(),
-			reason:              formData.reason.trim(),
-			mode:                formData.meetingMode,
-			link:                formData.meetingMode === "online" ? formData.link : null,
-			venue:               formData.meetingMode === "offline" ? formData.venue : null,
-			note:                formData.note.trim() || null,
-			status:              "pending",
-			createdAt:           new Date().toISOString(),
-		});
-		onClose();
+
+		setSubmitting(true);
+		try {
+			const result = await onConfirm({
+				id:                  Date.now(),
+				recipientId:         formData.recipientId,
+				professorId:         formData.recipientId, // backend expects professor_id/professorId as the target user id
+				recipientName:       formData.recipientName.trim(),
+				recipientRole:       formData.recipientRole,
+				recipientDepartment: formData.recipientDepartment.trim(),
+				subject:             formData.subject.trim(),
+				requestedTime:       new Date(formData.requestedDateTime).toISOString(),
+				reason:              formData.reason.trim(),
+				mode:                formData.meetingMode,
+				link:                formData.meetingMode === "online" ? formData.link : null,
+				venue:               formData.meetingMode === "offline" ? formData.venue : null,
+				note:                formData.note.trim() || null,
+				status:              "pending",
+				createdAt:           new Date().toISOString(),
+			});
+
+			// onConfirm may not return anything (older callers) — treat that as success.
+			if (result && result.success === false) {
+				setErrors((prev) => ({ ...prev, submit: result.error || "Failed to send meeting request" }));
+				return;
+			}
+			onClose();
+		} finally {
+			setSubmitting(false);
+		}
 	};
 
 	const minDateTime = new Date();
@@ -378,13 +406,23 @@ const RequestMeetingModal = ({ isOpen, onClose, onConfirm, initialData }) => {
 					</form>
 				</div>
 
+				{/* Submit error */}
+				{errors.submit && (
+					<div className="px-5 pt-3">
+						<div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-sm rounded-xl px-4 py-2.5">
+							{errors.submit}
+						</div>
+					</div>
+				)}
+
 				{/* Footer */}
 				<div className="p-5 border-t border-gray-100 dark:border-gray-700 flex gap-3 bg-gray-50/50 dark:bg-gray-800/50">
 					<button type="button" onClick={onClose} className="flex-1 h-12 font-bold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 transition-colors">
 						Cancel
 					</button>
-					<button type="submit" form="meeting-request-form" className="flex-1 h-12 font-bold text-white bg-rose-600 rounded-xl shadow-lg flex items-center justify-center gap-2 hover:bg-rose-700 transition-all active:scale-[0.98]">
-						Send Request
+					<button type="submit" form="meeting-request-form" disabled={submitting} className="flex-1 h-12 font-bold text-white bg-rose-600 rounded-xl shadow-lg flex items-center justify-center gap-2 hover:bg-rose-700 transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
+						{submitting ? <Loader2 className="size-4 animate-spin" /> : null}
+						{submitting ? "Sending..." : "Send Request"}
 					</button>
 				</div>
 			</div>

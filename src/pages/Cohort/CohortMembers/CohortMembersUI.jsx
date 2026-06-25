@@ -1,5 +1,5 @@
 // src/pages/CohortMembers/CohortMembersUI.jsx
-import React from "react";
+import React, { useState, useMemo } from "react";
 import GradeModal from "../CohortMembers/Modals/GradeModal";
 import AssignmentInfoModal from "./AssignmentInfoModal";
 import CohortMembersHeader from "./component/Cohortmembersheader";
@@ -29,6 +29,36 @@ const CohortMembersUI = ({
 		setShowDisabledCreatePopup,
 	} = useCohortMembersState({ assignments });
 
+	// New state — Grade Whole Group + Status Filter + Assignment filter
+	const [gradeWholeGroup, setGradeWholeGroup] = useState(false);
+	const [statusFilter, setStatusFilter] = useState("all");
+	const [selectedAssignmentFilter, setSelectedAssignmentFilter] = useState(null);
+
+	// Filter members based on status filter + selected assignment
+	const filteredMembers = useMemo(() => {
+		if (statusFilter === "all" && !selectedAssignmentFilter) return members;
+
+		return members.filter((member) => {
+			const assignmentsToCheck = selectedAssignmentFilter
+				? assignments.filter((a) => a.id === selectedAssignmentFilter)
+				: assignments;
+
+			if (assignmentsToCheck.length === 0) return true;
+
+			return assignmentsToCheck.some((assignment) => {
+				const gradeKey = `${member.realUserId || member.id}_${assignment.id}`;
+				const grade = grades[gradeKey];
+				const isLate = assignment.deadline && new Date() > new Date(assignment.deadline);
+				const isSubmitted = grade?.isSubmitted || false;
+
+				if (statusFilter === "submitted") return isSubmitted;
+				if (statusFilter === "pending") return !isSubmitted && !isLate;
+				if (statusFilter === "late") return isLate && !isSubmitted;
+				return true;
+			});
+		});
+	}, [members, statusFilter, selectedAssignmentFilter, assignments, grades]);
+
 	if (loading) return <div className="flex items-center justify-center min-h-[400px]">Loading members...</div>;
 	if (error)   return <div className="flex items-center justify-center min-h-[400px]">{error}</div>;
 
@@ -49,14 +79,26 @@ const CohortMembersUI = ({
 					onExport={onExport}
 					onSearchChange={onSearchChange}
 					setShowDisabledCreatePopup={setShowDisabledCreatePopup}
+					// New props
+					gradeWholeGroup={gradeWholeGroup}
+					onGradeWholeGroupChange={setGradeWholeGroup}
+					statusFilter={statusFilter}
+					onStatusFilterChange={setStatusFilter}
+					selectedAssignment={selectedAssignmentFilter}
+					onAssignmentChange={setSelectedAssignmentFilter}
+					assignments={assignments}
 				/>
 
 				<MembersList
-					members={members}
+					members={filteredMembers}
 					memberType={memberType}
 					user_type={user_type}
 					currentUserId={currentUserId}
-					assignments={assignments}
+					assignments={
+						selectedAssignmentFilter
+							? assignments.filter((a) => a.id === selectedAssignmentFilter)
+							: assignments
+					}
 					grades={grades}
 					editingIndividualGrade={editingIndividualGrade}
 					individualGradeValue={individualGradeValue}
@@ -66,7 +108,7 @@ const CohortMembersUI = ({
 					groupGradeValue={groupGradeValue}
 					setGroupGradeValue={setGroupGradeValue}
 					setEditingGroupGrade={setEditingGroupGrade}
-					bulkGradeGroups={bulkGradeGroups}
+					bulkGradeGroups={gradeWholeGroup}
 					selectedAssignmentId={selectedAssignmentId}
 					onGradeSubmit={onGradeSubmit}
 					onMemberDetails={onMemberDetails}
@@ -85,7 +127,7 @@ const CohortMembersUI = ({
 					assignment={selectedGrade.assignment}
 					currentGrade={selectedGrade.grade}
 					onSubmit={onGradeSubmit}
-					isGroupGrading={selectedGrade.isGroupGrading}
+					isGroupGrading={selectedGrade.isGroupGrading || gradeWholeGroup}
 				/>
 			)}
 

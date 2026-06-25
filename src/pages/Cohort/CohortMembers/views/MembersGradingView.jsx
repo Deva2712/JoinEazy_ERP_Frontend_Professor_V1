@@ -281,24 +281,20 @@ const ScoreBox = ({ score, maxScore, onClick, isSubmitted = false, isLate = fals
       return isSubmitted ? `Late submission - Click to grade${submissionInfo}` : "Deadline passed - Click to grade";
     }
     if (!isSubmitted) {
-      return "Not submitted - Cannot grade yet";
+      return "Not submitted yet - Click to grade anyway";
     }
     return `Submitted - Click to grade${submissionInfo}`;
   };
 
   const handleClick = () => {
-    // Allow grading if: deadline passed (late), submitted, or already graded
-    if (isLate || isSubmitted || (score !== null && score !== undefined && score !== "")) {
-      onClick();
-    }
+
+    onClick();
   };
 
   return (
     <div
       onClick={handleClick}
-      className={`w-12 h-12 border-2 rounded-lg flex items-center justify-center transition-all hover:shadow-md font-bold ${getBoxColor()} ${
-        isLate || isSubmitted || (score !== null && score !== undefined && score !== "") ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed opacity-75'
-      }`}
+      className={`w-12 h-12 border-2 rounded-lg flex items-center justify-center transition-all hover:shadow-md font-bold cursor-pointer hover:scale-105 ${getBoxColor()}`}
       title={getTooltip()}
     >
       {score !== null && score !== undefined && score !== "" ? score : "-"}

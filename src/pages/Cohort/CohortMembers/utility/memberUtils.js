@@ -69,7 +69,7 @@ export const getAssignmentHoverMessage = (assignment, grade, isGroupAssignment =
         : `${assignmentName}${assignmentType}\nTotal Marks: ${maxMarks}${deadlineText}\nStatus: Not Submitted (Overdue)\nClick to grade`;
     }
     if (!isSubmitted)
-      return `${assignmentName}${assignmentType}\nTotal Marks: ${maxMarks}${deadlineText}\nStatus: Not Submitted\n⚠️ Grading disabled until submission is done`;
+      return `${assignmentName}${assignmentType}\nTotal Marks: ${maxMarks}${deadlineText}\nStatus: Not Submitted\nThis assignment must be graded from the Groups tab`;
     return `${assignmentName}${assignmentType}\nTotal Marks: ${maxMarks}${deadlineText}${submittedDate}\nStatus: Submitted\nClick to grade`;
   }
 

@@ -29,12 +29,12 @@ export function FilterBar({ filter, setFilter, tagFilter, setTagFilter }) {
           className="appearance-none px-3 py-1.5 pr-9 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer transition-colors"
         >
           <option value="all">All Tags</option>
-          <option value="Discussion">💬 Discussion</option>
-          <option value="Exam">📝 Exam</option>
-          <option value="Assignment">📚 Assignment</option>
-          <option value="Urgent">🔥 Urgent</option>
-          <option value="Class">📚 Class</option>
-          <option value="General">💬 General</option>
+          <option value="Discussion"> Discussion</option>
+          <option value="Exam"> Exam</option>
+          <option value="Assignment"> Assignment</option>
+          <option value="Urgent"> Urgent</option>
+          <option value="Class"> Class</option>
+          <option value="General"> General</option>
         </select>
         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-gray-400" size={16} />
       </div>

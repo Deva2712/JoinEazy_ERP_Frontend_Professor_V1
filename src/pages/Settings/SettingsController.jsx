@@ -106,16 +106,24 @@ const SettingsController = () => {
                     );
                 }
             } else {
-                // Professor: use existing userService
-                const res = await userService.getDashboardOverview();
+                // Professor: fetch full profile fields via getUserDetails
+                const res = await userService.getUserDetails(
+                    "id,name,email,role,dateOfBirth,gender,employeeId,department,designation,officeLocation,permanentAddress,currentAddress,city,state,pinCode,country,mobileNumber,alternateNumber,personalEmail,linkedinProfile,panNumber,aadhaarNumber,profile_pic"
+                );
                 if (!res.success) throw new Error(res.error || "Failed to load profile");
 
-                const userData = res.data.user || res.data;
+                const userData = res.data;
                 // Convert null values to empty strings to prevent React controlled/uncontrolled input warning
                 const sanitized = Object.fromEntries(
                     Object.entries(userData).map(([k, v]) => [k, v === null ? "" : v])
                 );
-                setProfileData(prev => ({ ...prev, ...sanitized }));
+                // Map backend field names to profileData keys
+                setProfileData(prev => ({
+                    ...prev,
+                    ...sanitized,
+                    fullName:      sanitized.name          ?? prev.fullName,
+                    officialEmail: sanitized.email         ?? prev.officialEmail,
+                }));
 
                 if (userData.profile_pic) {
                     setProfileImageUrl(

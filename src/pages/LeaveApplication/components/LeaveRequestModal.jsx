@@ -113,11 +113,22 @@ const LeaveRequestModal = ({
 
 	const handleChange = (e) => {
 		const { name, value, files } = e.target;
-		setFormData((prev) => ({
-			...prev,
-			[name]: files ? files[0] : value,
-		}));
-
+		if (name === "replacementFaculty") {
+			// faculty ID store karo, naam bhi alag rakh display ke liye
+			const selectedOption = e.target.options[e.target.selectedIndex];
+			const facultyName = selectedOption?.getAttribute("data-name") || "";
+			setFormData((prev) => ({
+				...prev,
+				replacementFaculty: value,           // ID
+				replacementFacultyId: value,          // ID (explicit)
+				replacementFacultyName: facultyName,  // naam backend ko bhejna
+			}));
+		} else {
+			setFormData((prev) => ({
+				...prev,
+				[name]: files ? files[0] : value,
+			}));
+		}
         if (errors[name]) {
             setErrors((prev) => ({ ...prev, [name]: "" }));
         }
@@ -318,9 +329,9 @@ const LeaveRequestModal = ({
 								>
 									<option value="">Select faculty (optional)</option>
 									{faculties
-										.filter((f) => f.name !== declinedFacultyName)
+										.filter((f) => f.id !== declinedFacultyName && f.name !== declinedFacultyName)
 										.map((f) => (
-											<option key={f.id} value={f.name}>
+											<option key={f.id} value={f.id} data-name={f.name}>
 												{f.name}
 											</option>
 										))}

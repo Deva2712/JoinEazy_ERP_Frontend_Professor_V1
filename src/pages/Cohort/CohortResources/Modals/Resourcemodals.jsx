@@ -2,11 +2,19 @@ import React, { useState } from "react";
 
 // Week Modal Component
 export const WeekModal = ({ onClose, onSave, week = null, existingWeeks = [] }) => {
+  // Parse existing dateRange back to startDate/endDate if editing
+  const parseDateRange = (w) => {
+    if (!w) return { startDate: "", endDate: "" };
+    if (w.startDate && w.endDate) return { startDate: w.startDate, endDate: w.endDate };
+     return { startDate: w.startDate || "", endDate: w.endDate || "" };
+  };
+  const { startDate: initStart, endDate: initEnd } = parseDateRange(week);
+
   const [formData, setFormData] = useState({
-    weekNumber: week?.weekNumber || (existingWeeks.length + 1),
-    title: week?.title || "",
-    startDate: week?.startDate || "",
-    endDate:   week?.endDate   || "",
+    weekNumber: parseInt(week?.weekNumber) || (existingWeeks.length + 1),
+    title:     week?.title || "",
+    startDate: initStart,
+    endDate:   initEnd,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -30,8 +38,12 @@ export const WeekModal = ({ onClose, onSave, week = null, existingWeeks = [] }) 
     setSaving(true);
     try {
       const result = await onSave({
-        ...formData,
-        dateRange: buildDateRange(formData.startDate, formData.endDate),
+        title:      formData.title.trim(),
+        weekNumber: parseInt(formData.weekNumber) || 1,
+        order:      (parseInt(formData.weekNumber) || 1) - 1,
+        startDate:  formData.startDate,
+        endDate:    formData.endDate,
+        dateRange:  buildDateRange(formData.startDate, formData.endDate),
       });
       if (result && !result.success) {
         setError(result.error || "Failed to save week");

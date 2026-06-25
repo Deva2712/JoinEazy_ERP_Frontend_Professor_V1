@@ -163,26 +163,37 @@ const useGroupMembers = (cohortId, cohortData) => {
         setAssignments(fetched);
       }
 
+      // localStorage se saved grades lo (manually entered scores)
       const storageKey = `grades_${cohortId}`;
       const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        setGrades(JSON.parse(stored));
-      } else {
-        const initial = {};
-        fetched.forEach((assignment) => {
-          if (assignment.status === "submitted") {
-            members.forEach((member) => {
-              if (member.type === "individual") {
-                initial[`${member.realUserId}_${assignment.id}`] = {
+      const storedGrades = stored ? JSON.parse(stored) : {};
+
+      // Backend se har assignment ke real submissions fetch karo
+      const updated = { ...storedGrades };
+      await Promise.all(
+        fetched.map(async (assignment) => {
+          try {
+            const subResp = await courseService.getAssignmentSubmissions(cohortId, assignment.id);
+            const submissions = subResp.data || subResp || [];
+            if (Array.isArray(submissions)) {
+              submissions.forEach((sub) => {
+                const key = `${sub.student_id}_${assignment.id}`;
+                updated[key] = {
+                  ...updated[key],
                   isSubmitted: true,
-                  submittedAt: assignment.submittedAt || null,
+                  submittedAt: sub.submitted_at || null,
+                  score: updated[key]?.score ?? sub.grade ?? null,
                 };
-              }
-            });
+              });
+            }
+          } catch {
+            // agar ek assignment fail ho to baaki continue karo
           }
-        });
-        setGrades(initial);
-      }
+        })
+      );
+
+      setGrades(updated);
+      localStorage.setItem(storageKey, JSON.stringify(updated));
     } catch (err) {
       console.error("Error fetching assignments:", err);
     }

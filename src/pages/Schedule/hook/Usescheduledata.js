@@ -54,7 +54,10 @@ export const useScheduleData = () => {
 	// ── Derived Data ──
 
 	const allDisplayMeetings = useMemo(() => {
-		return [...(scheduledMeetings || []), ...acceptedMeetings];
+		return [
+			...(scheduledMeetings || []),
+			...acceptedMeetings,
+		];
 	}, [scheduledMeetings, acceptedMeetings]);
 
 	const dateContext = useMemo(() => {

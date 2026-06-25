@@ -90,7 +90,7 @@ const ScoreBox = ({
     <div
       key={assignment.id}
       className={`${sharedClass} cursor-not-allowed opacity-75`}
-      title={getAssignmentHoverMessage(assignment, grade)}
+      title="Group assignment — grade the whole group first from the Groups tab, then you can adjust this student individually here."
     >
       -
     </div>
@@ -144,7 +144,10 @@ const MemberRow = ({
       const hasGrade = score !== null && score !== undefined;
       const isSubmitted = grade?.isSubmitted || false;
       const isLate = assignment.deadline && new Date() > new Date(assignment.deadline);
-      const isClickable = (!isGroupAssignment && (isSubmitted || isLate || hasGrade)) || (isGroupAssignment && hasGrade);
+      // Individual tab: normal (individual-type) assignments hamesha clickable.
+      // Group-type assignments yahan tabhi clickable hain jab group-grade pehle
+      // se di gayi ho (Groups tab se) — tab yeh sirf personal override hota hai.
+      const isClickable = !isGroupAssignment || hasGrade;
       const isEditing =
         editingIndividualGrade?.userId === member.realUserId &&
         editingIndividualGrade?.assignmentId === assignment.id;
@@ -167,7 +170,9 @@ const MemberRow = ({
               if (!individualGradeValue) { setEditingIndividualGrade(null); setIndividualGradeValue(""); return; }
               const s = parseInt(individualGradeValue);
               if (isNaN(s) || s < 0 || s > parseInt(assignment.marks)) { alert(`Score must be between 0 and ${assignment.marks}`); return; }
-              await onGradeSubmit(member, assignment, s, "", isGroupAssignment && member.isInGroup);
+              // Individual tab = personal override for THIS student only.
+              // Never bulk-apply to the whole group from here.
+              await onGradeSubmit(member, assignment, s, "", false);
               setEditingIndividualGrade(null); setIndividualGradeValue("");
             } else if (e.key === "Escape") { setEditingIndividualGrade(null); setIndividualGradeValue(""); }
           }}
@@ -175,7 +180,8 @@ const MemberRow = ({
             if (!individualGradeValue) { setEditingIndividualGrade(null); setIndividualGradeValue(""); return; }
             const s = parseInt(individualGradeValue);
             if (isNaN(s) || s < 0 || s > parseInt(assignment.marks)) { setEditingIndividualGrade(null); setIndividualGradeValue(""); return; }
-            await onGradeSubmit(member, assignment, s, "", isGroupAssignment && member.isInGroup);
+            // Individual tab = personal override for THIS student only.
+            await onGradeSubmit(member, assignment, s, "", false);
             setEditingIndividualGrade(null); setIndividualGradeValue("");
           }}
           onClick={() => {
@@ -221,7 +227,7 @@ const MemberRow = ({
       const borderColor = getBorderColor(assignment, firstMemberGrade);
       const isSubmitted = firstMemberGrade?.isSubmitted || false;
       const isLate = assignment.deadline && new Date() > new Date(assignment.deadline);
-      const isClickable = isGroupAssignment && (hasGrades || isSubmitted || isLate) && bulkGradeGroups;
+      const isClickable = true; // Prof hamesha grade kar sakta hai, bulkGradeGroups toggle bhi nahi rokega
       const isEditing =
         editingGroupGrade?.groupId === member.id && editingGroupGrade?.assignmentId === assignment.id;
       const membersGradedIndividually =

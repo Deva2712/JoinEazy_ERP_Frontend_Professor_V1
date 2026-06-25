@@ -29,8 +29,20 @@ const MeetingActionModal = ({
 	const [reason, setReason] = useState("");
 
 	useEffect(() => {
-		if (isOpen) setView(initialView);
-	}, [isOpen, initialView]);
+		if (isOpen) {
+			setView(initialView);
+
+			// Prefill with whatever the requester already provided, so the
+			// professor doesn't have to re-type a venue/link that was already given.
+			const requestedMode = request?.type?.toLowerCase() === "online" ? "online" : (request?.location ? "offline" : (request?.meetingLink ? "online" : "offline"));
+			setMeetingMode(requestedMode);
+			setLink(request?.meetingLink || "");
+			setVenue(request?.location || "");
+			setNote("");
+			setReason("");
+			setNewDateTime("");
+		}
+	}, [isOpen, initialView, request]);
 
 	if (!isOpen || !request) return null;
 

@@ -71,6 +71,7 @@ export const AttendanceProvider = ({ children }) => {
 				leaveService.getApplications(),
 			]);
 
+
 			if (courseRes.status === "success" || courseRes.success) {
 				const courses = courseRes.data.createdCohorts || [];
 				setActiveCourses(
@@ -87,6 +88,11 @@ export const AttendanceProvider = ({ children }) => {
 			 console.log('profLogs data:', logsRes.data);
 				setProfLogs(logsRes.data);
 			}
+			const formattedLogs = profLogs.map(log => ({
+    ...log,
+    courseName: log.cohort_name || log.course_name || log.title || "Unknown Course",
+}));
+
 
 			if (leaveRes?.data?.applications) {
 				setLeaveApplications(leaveRes.data.applications);
@@ -240,7 +246,6 @@ export const AttendanceProvider = ({ children }) => {
 		setIsConfirmModalOpen(false);
 
 		try {
-			// FIX: cohortId was undefined — use selectedCourse.id instead
 			const response = await attendanceService.markAttendance(
 				selectedCourse.id,
 				{

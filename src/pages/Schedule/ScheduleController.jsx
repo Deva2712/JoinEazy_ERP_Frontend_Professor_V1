@@ -89,12 +89,18 @@ const ScheduleController = () => {
 	};
 
 	const handleNewOutgoingRequest = async (requestData) => {
+		const tempId = requestData.id;
 		setOutgoingRequests((prev) => [...prev, { ...requestData, status: "pending" }]);
 		const response = await scheduleService.createOutgoingRequest(requestData);
 		if (!response.success) {
 			console.error("Failed to create outgoing request:", response.error);
+			// Roll back the optimistic entry so the UI doesn't show a request
+			// that was never actually created on the server.
+			setOutgoingRequests((prev) => prev.filter((r) => r.id !== tempId));
+			return { success: false, error: response.error };
 		}
-		refreshNotifications();
+		await Promise.all([fetchUserData(), refreshNotifications()]);
+		return { success: true };
 	};
 
 	const handleAddTimetableEvent = useCallback(

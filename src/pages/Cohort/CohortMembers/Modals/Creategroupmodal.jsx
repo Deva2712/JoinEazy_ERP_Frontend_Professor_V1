@@ -67,6 +67,7 @@ const CreateGroupModal = ({
         description: groupDescription,
         members: selectedMembers,
         availableMembers,
+        creatorIsProfessor: isProfessor,
       });
       setGroupName("");
       setProjectName("");
@@ -131,7 +132,7 @@ const CreateGroupModal = ({
               <div>Minimum: {minGroupMembers} • Maximum: {maxGroupMembers}</div>
               <div>
                 {isProfessor ? (
-                  <>Joined: {selectedMembers.length}/{maxGroupMembers}</>
+                  <>First selected member will be the group leader. Joined: {selectedMembers.length}/{maxGroupMembers}</>
                 ) : (
                   <>You will be added automatically as the group leader. Joined: {1 + selectedMembers.length}/{maxGroupMembers}</>
                 )}

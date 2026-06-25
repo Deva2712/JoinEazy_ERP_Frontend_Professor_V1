@@ -62,7 +62,8 @@ const ProfessorLogsView = ({
 	}, [profLogs, leaveApplications]);
 
 	const combinedLogs = useMemo(() => {
-		const merged = [...logs.map((log) => ({ ...log, type: "attendance" }))];
+		// profLogs me submitted + draft dono include karo (sirf submitted nahi)
+		const merged = [...profLogs.map((log) => ({ ...log, type: "attendance" }))];
 
 		leaveApplications
 			.filter((app) => app.status === "Approved")
@@ -180,8 +181,15 @@ const ProfessorLogsView = ({
 											className={`size-5 ${log.type === "leave" ? "text-orange-600" : "text-purple-600"}`}
 										/>
 									</div>
-									<div className="font-bold text-gray-900 dark:text-white">
-										{formatDate(log.date)}
+									<div>
+										<div className="font-bold text-gray-900 dark:text-white">
+											{formatDate(log.date)}
+										</div>
+										{log.type !== "leave" && log.courseName && (
+											<div className="text-xs text-purple-600 dark:text-purple-400 font-medium mt-0.5">
+												{log.courseName}
+											</div>
+										)}
 									</div>
 								</div>
 
@@ -234,12 +242,9 @@ const ProfessorLogsView = ({
 							<thead>
 								<tr className="bg-gray-50/50 dark:bg-gray-900/50 text-gray-400 text-[10px] uppercase tracking-widest font-bold border-b border-gray-100 dark:border-gray-700">
 									<th className="px-6 py-4">Date</th>
-									<th className="px-6 py-4 text-center">
-										Status / Check In
-									</th>
-									<th className="px-6 py-4 text-right">
-										Check Out
-									</th>
+									<th className="px-6 py-4">Course</th>
+									<th className="px-6 py-4 text-center">Check In</th>
+									<th className="px-6 py-4 text-right">Check Out</th>
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -252,26 +257,34 @@ const ProfessorLogsView = ({
 											<td className="px-6 py-4 font-bold text-gray-900 dark:text-white">
 												{formatDate(log.date)}
 											</td>
+											<td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+												{log.type === "leave" ? (
+													<span className="text-orange-500 text-xs font-semibold">On Leave</span>
+												) : (
+													log.courseName || "—"
+												)}
+											</td>
 											<td className="px-6 py-4 text-center">
 												{log.type === "leave" ? (
 													<span className="text-orange-600 dark:text-orange-400 inline-flex items-center gap-2">
-														<Calendar className="size-3" />
-														{log.leaveType}
+														<Calendar className="size-3" />{log.leaveType}
 													</span>
 												) : (
-													<span className="text-gray-600 dark:text-gray-400 inline-flex items-center gap-2 font-medium">
-														<Clock className="size-3 text-gray-500" />
+													<span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-full ${
+														log.isSubmitted
+															? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+															: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+													}`}>
+														<Clock className="size-3" />
 														{log.checkIn}
 													</span>
 												)}
 											</td>
 											<td className="px-6 py-4 text-right text-gray-600 dark:text-gray-400">
-												{log.type === "leave" ? (
-													"N/A"
-												) : (
+												{log.type === "leave" ? "N/A" : (
 													<span className="inline-flex items-center gap-2 font-medium">
 														<Clock className="size-3 text-gray-400" />
-														{log.checkOut}
+														{log.checkOut || "—"}
 													</span>
 												)}
 											</td>
@@ -280,7 +293,7 @@ const ProfessorLogsView = ({
 								) : (
 									<tr>
 										<td
-											colSpan="3"
+											colSpan="4"
 											className="px-6 py-20 text-center"
 										>
 											<History className="size-10 text-gray-200 dark:text-gray-700 mx-auto mb-3" />
