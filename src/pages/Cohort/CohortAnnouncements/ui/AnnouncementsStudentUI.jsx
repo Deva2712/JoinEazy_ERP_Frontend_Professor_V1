@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { StudentFilterBar, StudentAnnouncementCard, StudentEmptyState, LoadingState, ErrorState } from '../components/Studentannouncementcomponents';
 import { StudentDiscussionCard, StudentDeleteModal, CreateDiscussionSidebar, StudentMobileFAB } from '../components/Studentdiscussioncomponents';
+import { filterDiscussionsStudent } from '../utils/Announcementutils';
 
 export default function AnnouncementsStudentUI({
   announcements,
@@ -42,6 +43,9 @@ export default function AnnouncementsStudentUI({
     const matchesTag = tagFilter === 'all' || a.tags?.includes(tagFilter);
     return matchesFilter && matchesTag;
   });
+
+  // FIX: discussions were rendering unconditionally, ignoring both filters.
+  const filteredDiscussions = filterDiscussionsStudent(discussions, filter, tagFilter);
 
   // ── Discussion handlers ─────────────────────────────────────────────────
 
@@ -127,7 +131,7 @@ export default function AnnouncementsStudentUI({
         )}
 
         {/* Discussions */}
-        {(Array.isArray(discussions) ? discussions : []).map((discussion) => (
+        {filteredDiscussions.map((discussion) => (
           <StudentDiscussionCard
             key={discussion.id}
             discussion={discussion}

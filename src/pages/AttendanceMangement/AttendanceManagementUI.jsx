@@ -1,3 +1,5 @@
+// src/pages/AttendanceMangement/AttendanceManagementUI.jsx
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { History, ArrowLeft, RefreshCw, LayoutDashboard, BookOpen, AlertTriangle } from "lucide-react";
@@ -21,8 +23,6 @@ const TABS = [
 	{ key: "management", label: "Overview", icon: LayoutDashboard },
 	{ key: "prof-attendance", label: "My Attendance", icon: History },
 ];
-
-// ─── Sub-components ─────────────────────────────────────────────────────────────
 
 const PageHeader = ({ courses, viewMode, onNavigateBack, switchToManagement, switchToLogs }) => (
 	<div className="bg-gradient-to-br from-purple-700 via-purple-800 to-violet-900 dark:from-purple-900 dark:via-purple-950 dark:to-violet-950 text-white">
@@ -61,8 +61,6 @@ const PageHeader = ({ courses, viewMode, onNavigateBack, switchToManagement, swi
 	</div>
 );
 
-// ─── Main Component ─────────────────────────────────────────────────────────────
-
 const AttendanceManagementUI = () => {
 	const navigate = useNavigate();
 	const {
@@ -70,23 +68,36 @@ const AttendanceManagementUI = () => {
 		qr, loading, error, markingLoading, submitLoading, hasSubmitted,
 		viewMode, selectedCourse, departmentMapping,
 		isConfirmModalOpen, isSaveSuccessOpen,
+		selectedDate, setSelectedDate, allowedDates,
 		actions,
 	} = useAttendance();
 
-	const { onRefresh, setQrTimeout, setSaveSuccessModal, setConfirmModal, onConfirmSave, switchToLogs, switchToManagement, closeQRView } = actions;
+	const {
+		onRefresh, setQrTimeout, setSaveSuccessModal, setConfirmModal,
+		onConfirmSave, switchToLogs, switchToManagement, closeQRView,
+	} = actions;
 
 	const ui = useAttendanceUI({ students, profLogs, presentIds, absentIds });
 
 	if (viewMode === "qr-view") {
-		return <QRView qrToken={qr.token} timeLeft={qr.timeLeft} onGenerateQR={actions.onGenerateQR} onClose={closeQRView} hasSubmitted={hasSubmitted} />;
+		return (
+			<QRView
+				qrToken={qr.token} timeLeft={qr.timeLeft}
+				onGenerateQR={actions.onGenerateQR} onClose={closeQRView}
+				hasSubmitted={hasSubmitted}
+			/>
+		);
 	}
 
 	return (
 		<div className="bg-gray-50 dark:bg-[#0f1117] min-h-screen font-sans transition-colors duration-300">
 			<HeaderController />
 
-			<PageHeader courses={courses} viewMode={viewMode} onNavigateBack={() => navigate("/dashboard")}
-				switchToManagement={switchToManagement} switchToLogs={switchToLogs} />
+			<PageHeader
+				courses={courses} viewMode={viewMode}
+				onNavigateBack={() => navigate("/dashboard")}
+				switchToManagement={switchToManagement} switchToLogs={switchToLogs}
+			/>
 
 			<main className="px-4 py-8 max-w-7xl mx-auto w-full pb-24 md:pb-12">
 				{error ? (
@@ -107,9 +118,11 @@ const AttendanceManagementUI = () => {
 						<p className="text-sm">Please wait while we fetch your courses and logs...</p>
 					</div>
 				) : viewMode === "prof-attendance" ? (
-					<ProfessorLogsView logs={ui.sortedFilteredLogs} formatDate={formatDate}
+					<ProfessorLogsView
+						logs={ui.sortedFilteredLogs} formatDate={formatDate}
 						activeMonth={ui.activeMonth} onMonthChange={ui.setActiveMonth}
-						profLogs={profLogs} leaveApplications={leaveApplications} />
+						profLogs={profLogs} leaveApplications={leaveApplications}
+					/>
 				) : !selectedCourse ? (
 					<CourseGrid courses={courses} onSelectCourse={actions.onSelectCourse} />
 				) : (
@@ -125,6 +138,9 @@ const AttendanceManagementUI = () => {
 						allMarked={ui.allMarked} onBack={switchToManagement}
 						departmentQuery={ui.departmentQuery} setDepartmentQuery={ui.setDepartmentQuery}
 						departments={ui.departments} departmentMapping={departmentMapping}
+						selectedDate={selectedDate}
+						setSelectedDate={setSelectedDate}
+						allowedDates={allowedDates}
 					/>
 				)}
 			</main>

@@ -4,7 +4,7 @@ import { DiscussionCard, DeleteConfirmModal } from '../components/Professordiscu
 import { LoadingState, ErrorState } from '../components/Professoratoms';
 import AnnouncementFormModal from '../Modals/AnnouncementFormModal';
 import { X, Pin, Lock, MessageSquare, Calendar, Trash2, Send } from 'lucide-react';
-import { formatDate } from '../utils/Announcementutils';
+import { formatDate, filterDiscussions } from '../utils/Announcementutils';
 
 // ── Inline Detail Modal ──────────────────────────────────────────────────────
 function AnnouncementDetailModal({ announcement, onClose, currentUser, onAddReply, onDeleteReply, onUpvoteReply }) {
@@ -157,6 +157,10 @@ export default function AnnouncementsProfessorUI({
     return true;
   }).filter((a) => tagFilter === 'all' || a.tags?.includes(tagFilter));
 
+  // FIX: discussions were rendering unconditionally, ignoring both the
+  // main filter (all/active/pinned/archived) and the tag filter.
+  const filteredDiscussions = filterDiscussions(discussions, filter, tagFilter);
+
   const handleToggleExpand = (id) => setExpandedDiscussion((prev) => (prev === id ? null : id));
   const handleReplyChange = (discussionId, value) => setReplyTexts((prev) => ({ ...prev, [discussionId]: value }));
 
@@ -217,7 +221,7 @@ export default function AnnouncementsProfessorUI({
           ))
         )}
 
-        {(Array.isArray(discussions) ? discussions : []).map((discussion) => (
+        {filteredDiscussions.map((discussion) => (
           <DiscussionCard
             key={discussion.id}
             discussion={discussion}

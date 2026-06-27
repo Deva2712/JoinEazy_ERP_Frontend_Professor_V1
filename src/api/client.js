@@ -162,12 +162,14 @@ const realApiCall = async (endpoint, options = {}) => {
 		const fullUrl = `${FINAL_API_BASE_URL}${endpoint}`;
 		const token = getToken();
 		const { headers: _h, ...restOptions } = options;
+		const isFormData = options.body instanceof FormData;
 
 		const response = await fetch(fullUrl, {
 			credentials: "include",
 			...restOptions,
 			headers: {
-				"Content-Type": "application/json",
+			
+				...(isFormData ? {} : { "Content-Type": "application/json" }),
 				...options.headers,
 				...(token ? { Authorization: `Bearer ${token}` } : {}),
 			},

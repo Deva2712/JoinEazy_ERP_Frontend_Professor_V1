@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calendar, AlertCircle } from 'lucide-react';
 
 const AVAILABLE_TAGS = ['Exam', 'Assignment', 'Urgent', 'Class', 'General'];
@@ -19,6 +19,18 @@ export default function AnnouncementFormModal({
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+   useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        title: initialData?.title || '',
+        content: initialData?.content || '',
+        tags: initialData?.tags || [],
+        priority: initialData?.priority || '',
+      });
+      setError(null);
+    }
+  }, [isOpen, initialData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { expensesService } from "@/api/services/expenses.service";
 import { advancesService } from "@/api/services/advances.service";
+import { uploadService } from "@/api/services/upload.service";
 import { useJobs } from "../../../context/JobTrayContext";
 import { useNotifications } from "../../../context/NotificationContext";
 
@@ -93,13 +94,23 @@ export const useFinanceActions = ({ expenses, setExpenses, advances, setAdvances
 
     try {
       let response;
+
+      // Agar user ne actual file select ki hai (File object), pehle usse
+      // S3 pe upload karo aur URL nikalo — File object ko seedha JSON mein
+      // bhejna kaam nahi karta, JSON.stringify se file data lost ho jaata hai.
+      let proofDocUrl = formData.proof_doc_file;
+      if (formData.proof_doc_file instanceof File) {
+        const uploadRes = await uploadService.uploadFile(formData.proof_doc_file, "finance_proof");
+        proofDocUrl = uploadRes?.data?.fileUrl || null;
+      }
+
       let payload = {
         title: formData.title,
         category: formData.category,
         description: formData.description,
         amount: formData.amount,
         proof_doc_link: formData.proof_doc_link,
-        proof_doc_file: formData.proof_doc_file,
+        proof_doc_file: proofDocUrl,
         status: isResubmission ? "Resubmitted" : isUpdate ? currentRecord.status : "Pending",
       };
 
@@ -111,7 +122,7 @@ export const useFinanceActions = ({ expenses, setExpenses, advances, setAdvances
           description: currentRecord.description,
           adminComments: currentRecord.adminComments,
           proof_doc_link: currentRecord.proof_doc_link,
-          proof_doc_file: formData.proof_doc_file,
+          proof_doc_file: proofDocUrl,
         };
       }
 

@@ -105,12 +105,30 @@ const LeaveRequestCard = ({ app, onEdit }) => {
 						<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
 							<span className="flex items-center gap-1.5">
 								<Calendar className="size-3.5 text-orange-500" />{" "}
-								{formattedDate(app.fromDate)}
+								{app.fromDate === app.toDate
+									? formattedDate(app.fromDate)
+									: `${formattedDate(app.fromDate)} - ${formattedDate(app.toDate)}`}
 							</span>
 							<span className="flex items-center gap-1.5">
 								<Clock className="size-3.5 text-orange-500" />{" "}
 								Applied: {formattedDate(app.appliedAt)}
 							</span>
+							{/* NEW: Replacement faculty name now visible even when collapsed */}
+							{app.replacementFaculty && (
+								<span
+									className={`flex items-center gap-1.5 ${
+										isSubstitutionDeclined ? "text-red-500" : ""
+									}`}
+								>
+									{isSubstitutionDeclined ? (
+										<UserX className="size-3.5 text-red-500" />
+									) : (
+										<User className="size-3.5 text-orange-500" />
+									)}{" "}
+									Covering: {app.replacementFaculty}
+									{isSubstitutionDeclined && " (Declined)"}
+								</span>
+							)}
 						</div>
 					</div>
 
@@ -196,6 +214,34 @@ const LeaveRequestCard = ({ app, onEdit }) => {
 													</p>
 												)}
 											</div>
+										</div>
+									</div>
+								)}
+
+								{/* Class Being Covered (Course / Room / Timings) */}
+								{app.replacementFaculty && (app.courseName || app.roomNumber || app.timings?.startTime) && (
+									<div className="flex-1 space-y-2">
+										<h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+											Class Being Covered
+										</h4>
+										<div className="bg-gray-50 dark:bg-gray-800/50 p-3 sm:p-4 rounded-xl space-y-1.5">
+											{app.courseName && (
+												<div className="text-sm text-gray-700 dark:text-gray-300">
+													<span className="font-bold">Course:</span> {app.courseName}
+												</div>
+											)}
+											{app.roomNumber && (
+												<div className="text-sm text-gray-700 dark:text-gray-300">
+													<span className="font-bold">Room:</span> {app.roomNumber}
+												</div>
+											)}
+											{(app.timings?.startTime || app.timings?.endTime) && (
+												<div className="text-sm text-gray-700 dark:text-gray-300">
+													<span className="font-bold">Time:</span>{" "}
+													{app.timings?.startTime || "—"}
+													{app.timings?.endTime ? ` - ${app.timings.endTime}` : ""}
+												</div>
+											)}
 										</div>
 									</div>
 								)}

@@ -9677,6 +9677,11 @@ body{
   --tw-ring-color: rgb(249 115 22 / var(--tw-ring-opacity, 1));
 }
 
+.focus\:ring-purple-400:focus{
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(192 132 252 / var(--tw-ring-opacity, 1));
+}
+
 .focus\:ring-purple-500\/20:focus{
   --tw-ring-color: rgb(168 85 247 / 0.2);
 }

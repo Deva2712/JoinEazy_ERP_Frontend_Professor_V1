@@ -23,21 +23,18 @@ export const sessionPlanningService = {
     // Retrieves uploaded documents (Syllabus, Lesson Plans, etc.) for a course
     getDocuments: (courseId) => apiCall(`/sessions/documents/${courseId}`),
     
-    // Upload documents for a course
+    // Upload documents for a course — actual file content bhejte hain (FormData),
+    // sirf naam nahi (pehle yahi galti thi: file kabhi backend tak pahunchti nahi thi)
     uploadDocuments: (courseId, filesMap) => {
-        // Extract names to pass to mock handler
-        const fileNames = {};
-        Object.keys(filesMap).forEach(key => {
-            fileNames[key] = filesMap[key].name;
+        const fd = new FormData();
+        Object.entries(filesMap).forEach(([docType, file]) => {
+            fd.append("docTypes", docType);     // multiple docTypes[] entries
+            fd.append(docType, file);           // field name = docType key, multer.fields() se match hoga
         });
 
         return apiCall(`/sessions/documents/${courseId}/bulk`, {
             method: "POST",
-            body: JSON.stringify({ 
-                courseId, 
-                docs: Object.keys(filesMap),
-                fileNames: fileNames // Added for mock realism
-            }),
+            body: fd,
         });
     },
 };
