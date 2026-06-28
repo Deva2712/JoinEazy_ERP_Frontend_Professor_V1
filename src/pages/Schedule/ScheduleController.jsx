@@ -60,8 +60,8 @@ const ScheduleController = () => {
 		}
 	};
 
-	const handleRescheduleRequest = async (requestId, newDateTime) => {
-		const response = await scheduleService.rescheduleMeetingRequest(requestId, newDateTime);
+	const handleRescheduleRequest = async (requestId, details) => {
+		const response = await scheduleService.rescheduleMeetingRequest(requestId, details);
 		if (response.success) {
 			await Promise.all([fetchUserData(), refreshNotifications()]);
 		}

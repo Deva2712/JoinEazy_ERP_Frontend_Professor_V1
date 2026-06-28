@@ -94,7 +94,18 @@ export function useResearchActions(state) {
         setSelectedItem((prev) => prev?.data?.id === id
             ? { ...prev, data: { ...prev.data, isStarred: isNowStarred, starsCount: isNowStarred ? (prev.data.starsCount || 0) + 1 : Math.max(0, (prev.data.starsCount || 0) - 1) } }
             : prev);
-        try { const res = await researchService.toggleStar(id); if (!res.success) fetchData(); } catch { fetchData(); }
+        try {
+            const res = await researchService.toggleStar(id);
+            if (!res.success) {
+                fetchData();
+            } else if (res.data?.starsCount !== undefined) {
+                // Backend se real starsCount se sync karo
+                const realCount = res.data.starsCount;
+                updateAllLists((list) => list.map((item) =>
+                    item.id === id ? { ...item, starsCount: realCount, trendingScore: res.data.trendingScore ?? item.trendingScore } : item
+                ));
+            }
+        } catch { fetchData(); }
     };
 
     // ── Application actions ───────────────────────────────────────────────────

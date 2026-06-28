@@ -1,4 +1,3 @@
-
 // src/pages/Research/ResearchUI.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -131,7 +130,7 @@ const ResearchUI = ({ data, view, actions }) => {
 					<div className="transition-all duration-300">
 						{viewMode === "my-projects"     && <MyProjectsView     myProjects={myProjects}         onSelectItem={setSelectedItem} searchQuery={personalSearchQuery} onSearchChange={onPersonalSearchChange} onPostNew={() => ui.handleOpenCreateModal("Project")}     onOpenFilters={() => ui.setIsFilterSidebarOpen(true)} />}
 						{viewMode === "my-publications" && <MyPublicationsView myPublications={myPublications} onSelectItem={setSelectedItem} searchQuery={personalSearchQuery} onSearchChange={onPersonalSearchChange} onPostNew={() => ui.handleOpenCreateModal("Publication")} onOpenFilters={() => ui.setIsFilterSidebarOpen(true)} />}
-						{viewMode === "explore"         && <ExploreResearchView availableProjects={availableProjects} allPublications={availablePublications} allUsers={allUsers} onSelectItem={setSelectedItem} onViewUser={onViewUser} searchQuery={exploreSearchQuery} onSearchChange={onExploreSearchChange} filters={filters} onOpenFilters={() => ui.setIsFilterSidebarOpen(true)} />}
+						{viewMode === "explore"         && <ExploreResearchView availableProjects={availableProjects} allPublications={availablePublications} allUsers={allUsers} onSelectItem={setSelectedItem} onViewUser={onViewUser} searchQuery={exploreSearchQuery} onSearchChange={onExploreSearchChange} filters={filters} onOpenFilters={() => ui.setIsFilterSidebarOpen(true)} onStar={onStar} />}
 						{viewMode === "my-applications" && <ApplicationsView   applications={myApplications}   searchQuery={personalSearchQuery} onSearchChange={onPersonalSearchChange} onApplicationAction={onApplicationAction} onViewUser={onViewUser} />}
 					</div>
 				)}

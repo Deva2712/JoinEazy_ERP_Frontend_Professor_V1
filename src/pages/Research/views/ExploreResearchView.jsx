@@ -114,7 +114,8 @@ const ExploreResearchView = ({
 	const popularItems = useMemo(
 		() =>
 			[...processedData].sort(
-				(a, b) => (b.starsCount || 0) - (a.starsCount || 0),
+				// trendingScore = (stars x2 + applicants) x recency boost
+				(a, b) => (b.trendingScore || b.starsCount || 0) - (a.trendingScore || a.starsCount || 0),
 			),
 		[processedData],
 	);
@@ -230,6 +231,7 @@ const ExploreResearchView = ({
 													item={item}
 													type={item.itemType}
 													onClick={() => onSelectItem({ type: item.itemType, data: item })}
+													onStar={onStar}
 												/>
 											))}
 										</div>
@@ -258,6 +260,7 @@ const ExploreResearchView = ({
 													item={item}
 													type={item.itemType}
 													onClick={() => onSelectItem({ type: item.itemType, data: item })}
+													onStar={onStar}
 												/>
 											))}
 										</div>

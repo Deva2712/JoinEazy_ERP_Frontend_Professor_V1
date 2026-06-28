@@ -34,6 +34,7 @@ const MOCK_HANDLERS = [
 // ── Real backend endpoints ────────────────────────────────────────────────────
 const REAL_ENDPOINTS = [
 	// Auth
+
 	/^\/auth\//,
 
 
@@ -134,6 +135,8 @@ const REAL_ENDPOINTS = [
 
  /^\/student\/job-tray$/,
 /^\/job-tray$/,
+
+/^\/upload\//,   
 
 ];
 

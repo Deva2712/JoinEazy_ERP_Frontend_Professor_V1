@@ -7,12 +7,13 @@ import {
 	Briefcase,
 	Microscope,
 	BookOpen,
+	Star,
 } from "lucide-react";
 
 /**
  * Unified Card for both Research Projects and Publications.
  */
-const ResearchCard = ({ item, onClick, type = "project", matchedRole }) => {
+const ResearchCard = ({ item, onClick, type = "project", matchedRole, onStar }) => {
 	const memberCount = item.currentMemberCount || 0;
 	const totalCapacity =
 		(item.currentMemberCount || 0) + (item.openRolesCount || 0) || 1;
@@ -31,6 +32,17 @@ const ResearchCard = ({ item, onClick, type = "project", matchedRole }) => {
 					<Tag className="size-3" />
 					{item.category || "General"}
 				</span>
+				{/* Star button */}
+				{onStar && (
+					<button
+						onClick={(e) => { e.stopPropagation(); onStar(item.id); }}
+						className="flex items-center gap-1 text-xs font-semibold text-gray-400 hover:text-yellow-500 transition-colors"
+						title={item.isStarred ? "Unstar" : "Star this project"}
+					>
+						<Star className={`size-4 transition-colors ${item.isStarred ? "fill-yellow-400 text-yellow-400" : ""}`} />
+						<span>{item.starsCount || 0}</span>
+					</button>
+				)}
 
 				{matchedRole ? (
 					<span className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-black text-[10px] uppercase tracking-wider border border-blue-200/50 dark:border-blue-700/50">

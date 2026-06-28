@@ -34,11 +34,11 @@ export const scheduleService = {
             body: JSON.stringify({ reason }),
         }),
 
-    // Propose a new time for a meeting request
-    rescheduleMeetingRequest: (requestId, newDateTime) =>
+    // Propose a new time (and optionally updated mode/venue/link) for a meeting request
+    rescheduleMeetingRequest: (requestId, details) =>
         apiCall(`/professor/meetings/${requestId}/reschedule`, {
             method: "POST",
-            body: JSON.stringify({ newDateTime }),
+            body: JSON.stringify(details),
         }),
 
     // Create a new outgoing meeting request (e.g. professor requesting a meeting with another professor)

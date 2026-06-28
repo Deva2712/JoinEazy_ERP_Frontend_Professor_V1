@@ -25,11 +25,13 @@ export const useAttendance = () => {
 const getISTDateString = () =>
 	new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
-// Aaj + pichhle 2 working days (Sundays skip)
+// Aaj + pichhle 2 working days (Sundays skip) — "aaj" hamesha included hota
+// hai chahe woh Sunday hi ho; Sunday-skip sirf backdate (pichle) din ke liye
+// hai, taaki professor aaj ki attendance kabhi bhi mark kar sake.
 const getAllowedDates = () => {
-	const dates = [];
 	const todayStr = getISTDateString();
-	let checked = 0;
+	const dates = [todayStr];
+	let checked = 1;
 	while (dates.length < 3 && checked < 10) {
 		const d = new Date(todayStr + "T12:00:00Z");
 		d.setUTCDate(d.getUTCDate() - checked);

@@ -6187,6 +6187,10 @@ body{
   fill: #eab308;
 }
 
+.fill-yellow-400{
+  fill: #facc15;
+}
+
 .stroke-\[3\]{
   stroke-width: 3;
 }
@@ -7470,6 +7474,11 @@ body{
 .text-yellow-900{
   --tw-text-opacity: 1;
   color: rgb(113 63 18 / var(--tw-text-opacity, 1));
+}
+
+.text-yellow-400{
+  --tw-text-opacity: 1;
+  color: rgb(250 204 21 / var(--tw-text-opacity, 1));
 }
 
 .underline{
