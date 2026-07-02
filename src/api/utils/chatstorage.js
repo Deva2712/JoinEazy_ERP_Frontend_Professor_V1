@@ -10,7 +10,7 @@ export const loadChatMessagesFromStorage = () => {
 		const parsed = stored ? JSON.parse(stored) : null;
 		return parsed;
 	} catch (error) {
-		console.error("❌ Error loading chat messages from storage:", error);
+		console.error(" Error loading chat messages from storage:", error);
 		return null;
 	}
 };
@@ -20,7 +20,7 @@ export const saveChatMessagesToStorage = (messages) => {
 	try {
 		localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
 	} catch (error) {
-		console.error("❌ Error saving chat messages to storage:", error);
+		console.error(" Error saving chat messages to storage:", error);
 	}
 };
 

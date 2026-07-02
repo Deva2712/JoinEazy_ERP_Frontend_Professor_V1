@@ -8,7 +8,7 @@ export const loadDiscussionsFromStorage = () => {
 		const parsed = stored ? JSON.parse(stored) : null;
 		return parsed;
 	} catch (error) {
-		console.error("❌ Error loading discussions from storage:", error);
+		console.error(" Error loading discussions from storage:", error);
 		return null;
 	}
 };
@@ -20,7 +20,7 @@ export const saveDiscussionsToStorage = (discussions) => {
 			JSON.stringify(discussions),
 		);
 	} catch (error) {
-		console.error("❌ Error saving discussions to storage:", error);
+		console.error(" Error saving discussions to storage:", error);
 	}
 };
 

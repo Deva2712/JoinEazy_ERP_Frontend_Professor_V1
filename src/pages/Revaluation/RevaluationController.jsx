@@ -44,7 +44,7 @@ const RevaluationController = () => {
         try {
             const response = await revaluationService.submitRequest(data);
             if (response.success) {
-                setRequests((prev) => [response.data, ...prev]);
+                setRequests((prev) => [response.data.request, ...prev]);
                 setStats((prev) => ({
                     ...prev,
                     totalRequests: (prev.totalRequests ?? 0) + 1,

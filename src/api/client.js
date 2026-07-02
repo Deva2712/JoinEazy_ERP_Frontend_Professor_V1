@@ -78,9 +78,10 @@ const REAL_ENDPOINTS = [
 /^\/cohort\/[^/]+\/discussions/,
 
 	// Attendance
-	/^\/attendance\/logs\//,
+/^\/attendance\/logs\//,
 	/^\/courses\/[^/]+\/attendance/,
-
+	/^\/student\/attendance/,
+	
 	// Bulletins
 	/^\/bulletins/,
 
@@ -95,6 +96,9 @@ const REAL_ENDPOINTS = [
 
 	// Leaves
 	/^\/leaves\//,
+
+	// Hostel
+	/^\/hostel\//,
 
 
 	/^\/notifications\//,
@@ -132,11 +136,12 @@ const REAL_ENDPOINTS = [
    
 
   /^\/revaluation\//,
+  /^\/student\/revaluation\//,
 
  /^\/student\/job-tray$/,
-/^\/job-tray$/,
+ /^\/job-tray$/,
 
-/^\/upload\//,   
+ /^\/upload\//,   
 
 ];
 

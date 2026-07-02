@@ -8,7 +8,7 @@ export const loadAnnouncementsFromStorage = () => {
 		const parsed = stored ? JSON.parse(stored) : null;
 		return parsed;
 	} catch (error) {
-		console.error("❌ Error loading announcements from storage:", error);
+		console.error(" Error loading announcements from storage:", error);
 		return null;
 	}
 };
@@ -20,7 +20,7 @@ export const saveAnnouncementsToStorage = (announcements) => {
 			JSON.stringify(announcements),
 		);
 	} catch (error) {
-		console.error("❌ Error saving announcements to storage:", error);
+		console.error(" Error saving announcements to storage:", error);
 	}
 };
 
